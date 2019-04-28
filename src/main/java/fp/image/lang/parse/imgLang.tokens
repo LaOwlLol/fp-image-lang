@@ -1,0 +1,13 @@
+ID=1
+STRING=2
+EQUAL=3
+MULT=4
+DIV=5
+PLUS=6
+MINUS=7
+WS=8
+'='=3
+'*'=4
+'/'=5
+'+'=6
+'-'=7
