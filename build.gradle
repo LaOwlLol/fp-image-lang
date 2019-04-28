@@ -9,6 +9,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'antlr'
 }
 
 version = '0.0.1'
@@ -21,6 +22,9 @@ repositories {
 }
 
 dependencies {
+
+    antlr "org.antlr:antlr4:4.7.2"
+    
     // This dependency is found on compile classpath of this component and consumers.
     implementation 'com.google.guava:guava:27.0.1-jre'
 
@@ -29,6 +33,17 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ['-package', 'fp.image.lang.parse']
+    outputDirectory = new File("src/main/java/fp/image/lang/parse")
+}
+compileJava.dependsOn generateGrammarSource
+
+clean {
+    delete "src/main/java/fp/image/lang/parse"
 }
 
 jar {
