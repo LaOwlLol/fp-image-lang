@@ -1,6 +1,10 @@
 
 grammar imgLang;
 
+script
+    : assignment+
+    ;
+
 assignment
     : id EQUAL expression
     ;

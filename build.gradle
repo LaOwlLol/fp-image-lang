@@ -31,6 +31,9 @@ dependencies {
     compile 'com.github.LaOwlLol:fp-image:0.1.3.3'
     compile files(fileTree(dir: 'lib', includes: ['*.jar']))
 
+    //gives access to file utils like get extension.
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
@@ -56,11 +59,11 @@ jar {
                 'Built-JDK': System.getProperty('java.version'),
                 'Built-Gradle': gradle.gradleVersion,
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'fp.image.lang.Interpreter'
+                'Main-Class': 'fp.image.lang.Runner'
         )
     }
 
 }
 
 // Define the main class for the application
-mainClassName = 'fp.image.lang.Interpreter'
+mainClassName = 'fp.image.lang.Runner'

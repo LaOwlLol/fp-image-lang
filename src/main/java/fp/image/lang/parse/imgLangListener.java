@@ -8,6 +8,16 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface imgLangListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link imgLangParser#script}.
+	 * @param ctx the parse tree
+	 */
+	void enterScript(imgLangParser.ScriptContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#script}.
+	 * @param ctx the parse tree
+	 */
+	void exitScript(imgLangParser.ScriptContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link imgLangParser#assignment}.
 	 * @param ctx the parse tree
 	 */
