@@ -12,20 +12,48 @@ expression
     ;
 
 term
-    : id                    #Idenifier
-    | term MULT id          #Mult
-    | term DIV id           #Div
+    : image                 #ImageTerm
+    | term MULT image       #Mult
+    | term DIV image        #Div
+    ;
+
+image
+    : id                    #Var
+    | path                  #Literal
     ;
 
 id
     : ID
     ;
 
+path
+    : PATH_LITERAL
+    ;
+
 ID
-    : VALID_ID_START VALID_ID_CHAR* IMAGE_EXTENSION
+    : VALID_ID_START VALID_ID_CHAR*
     ;
 
 fragment VALID_ID_START
+    : ('a' .. 'z')
+    | ('A' .. 'Z')
+    | '_'
+    ;
+
+fragment VALID_ID_CHAR
+    : VALID_ID_START
+    | ID_STRING
+    ;
+
+ID_STRING
+    : [a-zA-Z~0-9] [a-zA-Z0-9-]*
+    ;
+
+PATH_LITERAL
+    : VALID_PATH_START VALID_PATH_CHAR* IMAGE_EXTENSION
+    ;
+
+fragment VALID_PATH_START
     : ('a' .. 'z')
     | ('A' .. 'Z')
     | '_'
@@ -33,9 +61,9 @@ fragment VALID_ID_START
     | '/'
     ;
 
-fragment VALID_ID_CHAR
-    : VALID_ID_START
-    | STRING
+fragment VALID_PATH_CHAR
+    : VALID_PATH_START
+    | PATH_STRING
     ;
 
 fragment IMAGE_EXTENSION
@@ -47,7 +75,7 @@ fragment IMAGE_EXTENSION
     | '.JPEG'
     ;
 
-STRING
+PATH_STRING
     : [a-zA-Z~0-9] [a-zA-Z0-9.-]*
     ;
 

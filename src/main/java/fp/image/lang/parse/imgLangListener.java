@@ -78,17 +78,41 @@ public interface imgLangListener extends ParseTreeListener {
 	 */
 	void exitMult(imgLangParser.MultContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code Idenifier}
+	 * Enter a parse tree produced by the {@code ImageTerm}
 	 * labeled alternative in {@link imgLangParser#term}.
 	 * @param ctx the parse tree
 	 */
-	void enterIdenifier(imgLangParser.IdenifierContext ctx);
+	void enterImageTerm(imgLangParser.ImageTermContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code Idenifier}
+	 * Exit a parse tree produced by the {@code ImageTerm}
 	 * labeled alternative in {@link imgLangParser#term}.
 	 * @param ctx the parse tree
 	 */
-	void exitIdenifier(imgLangParser.IdenifierContext ctx);
+	void exitImageTerm(imgLangParser.ImageTermContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Var}
+	 * labeled alternative in {@link imgLangParser#image}.
+	 * @param ctx the parse tree
+	 */
+	void enterVar(imgLangParser.VarContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Var}
+	 * labeled alternative in {@link imgLangParser#image}.
+	 * @param ctx the parse tree
+	 */
+	void exitVar(imgLangParser.VarContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Literal}
+	 * labeled alternative in {@link imgLangParser#image}.
+	 * @param ctx the parse tree
+	 */
+	void enterLiteral(imgLangParser.LiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Literal}
+	 * labeled alternative in {@link imgLangParser#image}.
+	 * @param ctx the parse tree
+	 */
+	void exitLiteral(imgLangParser.LiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link imgLangParser#id}.
 	 * @param ctx the parse tree
@@ -99,4 +123,14 @@ public interface imgLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitId(imgLangParser.IdContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link imgLangParser#path}.
+	 * @param ctx the parse tree
+	 */
+	void enterPath(imgLangParser.PathContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#path}.
+	 * @param ctx the parse tree
+	 */
+	void exitPath(imgLangParser.PathContext ctx);
 }

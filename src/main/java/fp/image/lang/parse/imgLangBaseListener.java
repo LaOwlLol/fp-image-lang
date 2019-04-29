@@ -88,13 +88,37 @@ public class imgLangBaseListener implements imgLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIdenifier(imgLangParser.IdenifierContext ctx) { }
+	@Override public void enterImageTerm(imgLangParser.ImageTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIdenifier(imgLangParser.IdenifierContext ctx) { }
+	@Override public void exitImageTerm(imgLangParser.ImageTermContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVar(imgLangParser.VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVar(imgLangParser.VarContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLiteral(imgLangParser.LiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLiteral(imgLangParser.LiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -107,6 +131,18 @@ public class imgLangBaseListener implements imgLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitId(imgLangParser.IdContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPath(imgLangParser.PathContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPath(imgLangParser.PathContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
