@@ -17,28 +17,29 @@ public class imgLangParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		ID=1, ID_STRING=2, PATH_LITERAL=3, PATH_STRING=4, EQUAL=5, MULT=6, DIV=7, 
-		PLUS=8, MINUS=9, WS=10;
+		T__0=1, ID=2, ID_STRING=3, PATH_LITERAL=4, PATH_STRING=5, EQUAL=6, MULT=7, 
+		DIV=8, PLUS=9, MINUS=10, WS=11;
 	public static final int
-		RULE_script = 0, RULE_assignment = 1, RULE_expression = 2, RULE_term = 3, 
-		RULE_image = 4, RULE_id = 5, RULE_path = 6;
+		RULE_script = 0, RULE_line = 1, RULE_assignment = 2, RULE_expression = 3, 
+		RULE_term = 4, RULE_image = 5, RULE_id = 6, RULE_path = 7;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"script", "assignment", "expression", "term", "image", "id", "path"
+			"script", "line", "assignment", "expression", "term", "image", "id", 
+			"path"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, null, "'='", "'*'", "'/'", "'+'", "'-'"
+			null, "'\n'", null, null, null, null, "'='", "'*'", "'/'", "'+'", "'-'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "ID", "ID_STRING", "PATH_LITERAL", "PATH_STRING", "EQUAL", "MULT", 
-			"DIV", "PLUS", "MINUS", "WS"
+			null, null, "ID", "ID_STRING", "PATH_LITERAL", "PATH_STRING", "EQUAL", 
+			"MULT", "DIV", "PLUS", "MINUS", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -93,11 +94,11 @@ public class imgLangParser extends Parser {
 	}
 
 	public static class ScriptContext extends ParserRuleContext {
-		public List<AssignmentContext> assignment() {
-			return getRuleContexts(AssignmentContext.class);
+		public List<LineContext> line() {
+			return getRuleContexts(LineContext.class);
 		}
-		public AssignmentContext assignment(int i) {
-			return getRuleContext(AssignmentContext.class,i);
+		public LineContext line(int i) {
+			return getRuleContext(LineContext.class,i);
 		}
 		public ScriptContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -120,20 +121,63 @@ public class imgLangParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(15); 
+			setState(16);
+			line();
+			setState(21);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			do {
+			while (_la==T__0) {
 				{
 				{
-				setState(14);
-				assignment();
+				setState(17);
+				match(T__0);
+				setState(18);
+				line();
 				}
 				}
-				setState(17); 
+				setState(23);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( _la==ID );
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class LineContext extends ParserRuleContext {
+		public AssignmentContext assignment() {
+			return getRuleContext(AssignmentContext.class,0);
+		}
+		public LineContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_line; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).enterLine(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).exitLine(this);
+		}
+	}
+
+	public final LineContext line() throws RecognitionException {
+		LineContext _localctx = new LineContext(_ctx, getState());
+		enterRule(_localctx, 2, RULE_line);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(24);
+			assignment();
 			}
 		}
 		catch (RecognitionException re) {
@@ -171,15 +215,15 @@ public class imgLangParser extends Parser {
 
 	public final AssignmentContext assignment() throws RecognitionException {
 		AssignmentContext _localctx = new AssignmentContext(_ctx, getState());
-		enterRule(_localctx, 2, RULE_assignment);
+		enterRule(_localctx, 4, RULE_assignment);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(19);
+			setState(26);
 			id();
-			setState(20);
+			setState(27);
 			match(EQUAL);
-			setState(21);
+			setState(28);
 			expression(0);
 			}
 		}
@@ -265,8 +309,8 @@ public class imgLangParser extends Parser {
 		int _parentState = getState();
 		ExpressionContext _localctx = new ExpressionContext(_ctx, _parentState);
 		ExpressionContext _prevctx = _localctx;
-		int _startState = 4;
-		enterRecursionRule(_localctx, 4, RULE_expression, _p);
+		int _startState = 6;
+		enterRecursionRule(_localctx, 6, RULE_expression, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
@@ -276,11 +320,11 @@ public class imgLangParser extends Parser {
 			_ctx = _localctx;
 			_prevctx = _localctx;
 
-			setState(24);
+			setState(31);
 			term(0);
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(34);
+			setState(41);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
@@ -288,18 +332,18 @@ public class imgLangParser extends Parser {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(32);
+					setState(39);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 					case 1:
 						{
 						_localctx = new PlusContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(26);
+						setState(33);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(27);
+						setState(34);
 						match(PLUS);
-						setState(28);
+						setState(35);
 						term(0);
 						}
 						break;
@@ -307,18 +351,18 @@ public class imgLangParser extends Parser {
 						{
 						_localctx = new MinusContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
-						setState(29);
+						setState(36);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
-						setState(30);
+						setState(37);
 						match(MINUS);
-						setState(31);
+						setState(38);
 						term(0);
 						}
 						break;
 					}
 					} 
 				}
-				setState(36);
+				setState(43);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			}
@@ -406,8 +450,8 @@ public class imgLangParser extends Parser {
 		int _parentState = getState();
 		TermContext _localctx = new TermContext(_ctx, _parentState);
 		TermContext _prevctx = _localctx;
-		int _startState = 6;
-		enterRecursionRule(_localctx, 6, RULE_term, _p);
+		int _startState = 8;
+		enterRecursionRule(_localctx, 8, RULE_term, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
@@ -417,11 +461,11 @@ public class imgLangParser extends Parser {
 			_ctx = _localctx;
 			_prevctx = _localctx;
 
-			setState(38);
+			setState(45);
 			image();
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(48);
+			setState(55);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
@@ -429,18 +473,18 @@ public class imgLangParser extends Parser {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(46);
+					setState(53);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 					case 1:
 						{
 						_localctx = new MultContext(new TermContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_term);
-						setState(40);
+						setState(47);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-						setState(41);
+						setState(48);
 						match(MULT);
-						setState(42);
+						setState(49);
 						image();
 						}
 						break;
@@ -448,18 +492,18 @@ public class imgLangParser extends Parser {
 						{
 						_localctx = new DivContext(new TermContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_term);
-						setState(43);
+						setState(50);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
-						setState(44);
+						setState(51);
 						match(DIV);
-						setState(45);
+						setState(52);
 						image();
 						}
 						break;
 					}
 					} 
 				}
-				setState(50);
+				setState(57);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			}
@@ -518,16 +562,16 @@ public class imgLangParser extends Parser {
 
 	public final ImageContext image() throws RecognitionException {
 		ImageContext _localctx = new ImageContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_image);
+		enterRule(_localctx, 10, RULE_image);
 		try {
-			setState(53);
+			setState(60);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ID:
 				_localctx = new VarContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(51);
+				setState(58);
 				id();
 				}
 				break;
@@ -535,7 +579,7 @@ public class imgLangParser extends Parser {
 				_localctx = new LiteralContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(52);
+				setState(59);
 				path();
 				}
 				break;
@@ -572,11 +616,11 @@ public class imgLangParser extends Parser {
 
 	public final IdContext id() throws RecognitionException {
 		IdContext _localctx = new IdContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_id);
+		enterRule(_localctx, 12, RULE_id);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(55);
+			setState(62);
 			match(ID);
 			}
 		}
@@ -609,11 +653,11 @@ public class imgLangParser extends Parser {
 
 	public final PathContext path() throws RecognitionException {
 		PathContext _localctx = new PathContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_path);
+		enterRule(_localctx, 14, RULE_path);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(57);
+			setState(64);
 			match(PATH_LITERAL);
 			}
 		}
@@ -630,9 +674,9 @@ public class imgLangParser extends Parser {
 
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 2:
-			return expression_sempred((ExpressionContext)_localctx, predIndex);
 		case 3:
+			return expression_sempred((ExpressionContext)_localctx, predIndex);
+		case 4:
 			return term_sempred((TermContext)_localctx, predIndex);
 		}
 		return true;
@@ -657,22 +701,23 @@ public class imgLangParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\f>\4\2\t\2\4\3\t"+
-		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\3\2\6\2\22\n\2\r\2\16\2\23"+
-		"\3\3\3\3\3\3\3\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\7\4#\n\4\f\4\16\4"+
-		"&\13\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\7\5\61\n\5\f\5\16\5\64\13\5"+
-		"\3\6\3\6\5\68\n\6\3\7\3\7\3\b\3\b\3\b\2\4\6\b\t\2\4\6\b\n\f\16\2\2\2<"+
-		"\2\21\3\2\2\2\4\25\3\2\2\2\6\31\3\2\2\2\b\'\3\2\2\2\n\67\3\2\2\2\f9\3"+
-		"\2\2\2\16;\3\2\2\2\20\22\5\4\3\2\21\20\3\2\2\2\22\23\3\2\2\2\23\21\3\2"+
-		"\2\2\23\24\3\2\2\2\24\3\3\2\2\2\25\26\5\f\7\2\26\27\7\7\2\2\27\30\5\6"+
-		"\4\2\30\5\3\2\2\2\31\32\b\4\1\2\32\33\5\b\5\2\33$\3\2\2\2\34\35\f\4\2"+
-		"\2\35\36\7\n\2\2\36#\5\b\5\2\37 \f\3\2\2 !\7\13\2\2!#\5\b\5\2\"\34\3\2"+
-		"\2\2\"\37\3\2\2\2#&\3\2\2\2$\"\3\2\2\2$%\3\2\2\2%\7\3\2\2\2&$\3\2\2\2"+
-		"\'(\b\5\1\2()\5\n\6\2)\62\3\2\2\2*+\f\4\2\2+,\7\b\2\2,\61\5\n\6\2-.\f"+
-		"\3\2\2./\7\t\2\2/\61\5\n\6\2\60*\3\2\2\2\60-\3\2\2\2\61\64\3\2\2\2\62"+
-		"\60\3\2\2\2\62\63\3\2\2\2\63\t\3\2\2\2\64\62\3\2\2\2\658\5\f\7\2\668\5"+
-		"\16\b\2\67\65\3\2\2\2\67\66\3\2\2\28\13\3\2\2\29:\7\3\2\2:\r\3\2\2\2;"+
-		"<\7\5\2\2<\17\3\2\2\2\b\23\"$\60\62\67";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\rE\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\3\2\3\2\3\2\7\2\26"+
+		"\n\2\f\2\16\2\31\13\2\3\3\3\3\3\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\5"+
+		"\3\5\3\5\3\5\7\5*\n\5\f\5\16\5-\13\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3"+
+		"\6\7\68\n\6\f\6\16\6;\13\6\3\7\3\7\5\7?\n\7\3\b\3\b\3\t\3\t\3\t\2\4\b"+
+		"\n\n\2\4\6\b\n\f\16\20\2\2\2B\2\22\3\2\2\2\4\32\3\2\2\2\6\34\3\2\2\2\b"+
+		" \3\2\2\2\n.\3\2\2\2\f>\3\2\2\2\16@\3\2\2\2\20B\3\2\2\2\22\27\5\4\3\2"+
+		"\23\24\7\3\2\2\24\26\5\4\3\2\25\23\3\2\2\2\26\31\3\2\2\2\27\25\3\2\2\2"+
+		"\27\30\3\2\2\2\30\3\3\2\2\2\31\27\3\2\2\2\32\33\5\6\4\2\33\5\3\2\2\2\34"+
+		"\35\5\16\b\2\35\36\7\b\2\2\36\37\5\b\5\2\37\7\3\2\2\2 !\b\5\1\2!\"\5\n"+
+		"\6\2\"+\3\2\2\2#$\f\4\2\2$%\7\13\2\2%*\5\n\6\2&\'\f\3\2\2\'(\7\f\2\2("+
+		"*\5\n\6\2)#\3\2\2\2)&\3\2\2\2*-\3\2\2\2+)\3\2\2\2+,\3\2\2\2,\t\3\2\2\2"+
+		"-+\3\2\2\2./\b\6\1\2/\60\5\f\7\2\609\3\2\2\2\61\62\f\4\2\2\62\63\7\t\2"+
+		"\2\638\5\f\7\2\64\65\f\3\2\2\65\66\7\n\2\2\668\5\f\7\2\67\61\3\2\2\2\67"+
+		"\64\3\2\2\28;\3\2\2\29\67\3\2\2\29:\3\2\2\2:\13\3\2\2\2;9\3\2\2\2<?\5"+
+		"\16\b\2=?\5\20\t\2><\3\2\2\2>=\3\2\2\2?\r\3\2\2\2@A\7\4\2\2A\17\3\2\2"+
+		"\2BC\7\6\2\2C\21\3\2\2\2\b\27)+\679>";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

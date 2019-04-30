@@ -2,7 +2,11 @@
 grammar imgLang;
 
 script
-    : assignment+
+    : line ('\n' line)*
+    ;
+
+line
+    : assignment
     ;
 
 assignment

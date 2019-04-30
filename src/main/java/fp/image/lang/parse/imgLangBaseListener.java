@@ -28,6 +28,18 @@ public class imgLangBaseListener implements imgLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLine(imgLangParser.LineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLine(imgLangParser.LineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAssignment(imgLangParser.AssignmentContext ctx) { }
 	/**
 	 * {@inheritDoc}

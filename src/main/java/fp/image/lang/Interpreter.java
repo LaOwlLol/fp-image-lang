@@ -24,6 +24,7 @@ import java.util.Stack;
 
 public class Interpreter extends imgLangBaseListener {
 
+    private FilterableImage last;
     private Stack<FilterableImage> images;
     private HashMap<String, FilterableImage> vars;
 
@@ -47,8 +48,8 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitAssignment(imgLangParser.AssignmentContext ctx) {
         super.exitAssignment(ctx);
-
-        vars.put(ctx.id().ID().getText(), images.pop());
+        last = images.pop();
+        vars.put(ctx.id().ID().getText(), last);
     }
 
     @Override
@@ -100,7 +101,12 @@ public class Interpreter extends imgLangBaseListener {
     }
 
     private FilterableImage getResult() {
-        return images.pop();
+        if (images.empty()) {
+            return last;
+        }
+        else {
+            return images.pop();
+        }
     }
 
     private FilterableImage getImageVariable(String id) throws NoSuchFieldException {

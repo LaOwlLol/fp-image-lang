@@ -3,63 +3,96 @@
  */
 package fp.image.lang;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
-public class Runner {
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+
+
+public class Runner extends Application {
 
     private Instant start;
     private Instant end;
+    private File script_file;
 
     public Runner() {
         start = Instant.now();
     }
 
     public static void main(String[] args) {
-        ArrayList<String> arguments = new ArrayList<>();
-        arguments.addAll(Arrays.asList(args));
-        Runner i = new Runner();
-
-        if (args.length > 0) {
-            i.interpret(args[0]);
-        }
-        else {
-            i.interpret("");
-        }
+        launch(args);
     }
 
-    private void interpret(String script) {
-        this.welcomeMsg();
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        primaryStage.setTitle("imgLang ITE");
+        BorderPane root = new BorderPane();
+        root.setPadding(new Insets(6));
 
-        this.benchMark();
+        ImageView image_view = new ImageView();
+        image_view.setFitWidth(1024);
+        image_view.setFitHeight(768);
+        root.setCenter(image_view);
 
-        this.completeMsg();
+        HBox botBar = new HBox();
+        botBar.setSpacing(10);
+        botBar.setDisable(true);
+        root.setBottom(botBar);
+
+        HBox topBar = new HBox();
+        topBar.setSpacing(10);
+        root.setTop(topBar);
+
+        Label script_lbl = new Label("Selected:");
+        topBar.getChildren().add(script_lbl);
+
+        Button selectScript_btn = new Button("Select");
+        selectScript_btn.setOnMouseClicked( (event -> {
+            FileChooser fileChooser = new FileChooser();
+            script_file =  fileChooser.showOpenDialog(selectScript_btn.getScene().getWindow());
+            if (script_file != null) {
+                script_lbl.setText("Selected: "+script_file.getPath());
+                botBar.setDisable(false);
+            }
+        }));
+        topBar.getChildren().add(selectScript_btn);
+
+        Button execute_btn = new Button("run");
+        execute_btn.setOnMouseClicked( (event -> {
+            Thread process = new Thread(() -> {
+                Interpreter interp = new Interpreter();
+                try {
+                    image_view.setImage(interp.interp(readFile(script_file.getPath())).getImage());
+                } catch (IOException e) {
+                    System.err.println("Error reading script!");
+                    e.printStackTrace();
+                }
+            });
+            process.start();
+        }));
+        botBar.getChildren().add(execute_btn);
+
+        primaryStage.setScene(new Scene(root, 1024, 850));
+        primaryStage.show();
     }
 
-    private void helpMsg() {
-
-        this.benchMark();
-
-    }
-
-    private void benchMark() {
-        System.out.println("Benchmarking...");
-        for (int i = 0; i < 1000000000; ++i) {
-            int r = i % 3;
-        }
-    }
-
-
-    private void welcomeMsg() {
-        System.out.println("Working...");
-        start = Instant.now();
-    }
-
-    private void completeMsg() {
-        this.end = Instant.now();
-        System.out.println("Finished!");
-        System.out.println("Elapsed time: "+ (Duration.between(start, end).toMillis()*0.001) + " second(s).");
+    static String readFile(String path) throws IOException
+    {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, Charset.defaultCharset());
     }
 }

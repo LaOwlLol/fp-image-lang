@@ -18,6 +18,16 @@ public interface imgLangListener extends ParseTreeListener {
 	 */
 	void exitScript(imgLangParser.ScriptContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link imgLangParser#line}.
+	 * @param ctx the parse tree
+	 */
+	void enterLine(imgLangParser.LineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#line}.
+	 * @param ctx the parse tree
+	 */
+	void exitLine(imgLangParser.LineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link imgLangParser#assignment}.
 	 * @param ctx the parse tree
 	 */
