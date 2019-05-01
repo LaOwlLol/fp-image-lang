@@ -65,8 +65,10 @@ fragment VALID_PATH_START
     : ('a' .. 'z')
     | ('A' .. 'Z')
     | '_'
-    | '.'
+    | './'
     | '/'
+    | ('a' .. 'z')':/'
+    | ('A' .. 'Z')':/'
     ;
 
 fragment VALID_PATH_CHAR

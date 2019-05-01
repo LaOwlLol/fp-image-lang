@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 
 
@@ -74,13 +75,16 @@ public class Runner extends Application {
         Button execute_btn = new Button("run");
         execute_btn.setOnMouseClicked( (event -> {
             Thread process = new Thread(() -> {
+
                 Interpreter interp = new Interpreter();
+                start = Instant.now();
                 try {
                     image_view.setImage(interp.interp(readFile(script_file.getPath())).getImage());
                 } catch (IOException e) {
                     System.err.println("Error reading script!");
                     e.printStackTrace();
                 }
+                System.out.println("Script took: "+Duration.between(start, Instant.now()).toMillis()/1000.0+" seconds.");
             });
             process.start();
         }));
