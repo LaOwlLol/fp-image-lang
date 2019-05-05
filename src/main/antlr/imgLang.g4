@@ -2,11 +2,12 @@
 grammar imgLang;
 
 script
-    : line ('\n' line)*
+    : NEWLINE* line ( NEWLINE+ line )* NEWLINE*
     ;
 
 line
     : assignment
+    | expression
     ;
 
 assignment
@@ -14,9 +15,9 @@ assignment
     ;
 
 expression
-    : term                      #SingleTerm
-    | expression PLUS term      #Plus
-    | expression MINUS term     #Minus
+    : term                              #SingleTerm
+    | expression PLUS term              #Plus
+    | expression MINUS term             #Minus
     ;
 
 term
@@ -28,6 +29,17 @@ term
 image
     : id                    #Var
     | path                  #Literal
+    | operation             #Call
+    ;
+
+operation
+    : 'canny' '(' image ',' FLOAT ',' FLOAT ')'                         #Canny
+    | 'sobel' '(' image ',' FLOAT ')'                                   #Sobel
+    | 'chromaKey' '(' image ',' FLOAT ',' FLOAT ',' FLOAT ')'           #ChromaKey
+    | 'gaussianBlur' '(' image ',' INT ',' FLOAT ')'                    #GaussianBlur
+    | 'grayScale' '(' image ')'                                         #GrayScale
+    | 'sharpen' '(' image ',' FLOAT ')'                                 #Sharpen
+    | 'translucent' '(' image ')'                                       #Translucent
     ;
 
 id
@@ -36,6 +48,11 @@ id
 
 path
     : PATH_LITERAL
+    ;
+
+value
+    : INT
+    | FLOAT
     ;
 
 ID
@@ -83,6 +100,27 @@ fragment IMAGE_EXTENSION
     | '.BMP'
     | '.jpeg'
     | '.JPEG'
+    | '.jpg'
+    | '.JPG'
+    ;
+
+fragment DIGIT
+    : '0' .. '9'
+    ;
+
+INT
+    : DIGIT+
+    ;
+
+FLOAT
+    : DIGIT+ '.' DIGIT*
+    | '.' DIGIT+
+    ;
+
+NEWLINE
+    : '\r\n'
+    | 'r'
+    | '\n'
     ;
 
 PATH_STRING
@@ -109,6 +147,10 @@ MINUS
     : '-'
     ;
 
+COMMENT
+    : '#' ~[\r\n]* ->skip
+    ;
+
 WS
-   : [ \r\n\t] + -> skip
+   : [ t] + -> skip
    ;

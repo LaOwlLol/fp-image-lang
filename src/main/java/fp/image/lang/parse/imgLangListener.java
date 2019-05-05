@@ -134,6 +134,102 @@ public interface imgLangListener extends ParseTreeListener {
 	 */
 	void exitLiteral(imgLangParser.LiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code Call}
+	 * labeled alternative in {@link imgLangParser#image}.
+	 * @param ctx the parse tree
+	 */
+	void enterCall(imgLangParser.CallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Call}
+	 * labeled alternative in {@link imgLangParser#image}.
+	 * @param ctx the parse tree
+	 */
+	void exitCall(imgLangParser.CallContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Canny}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterCanny(imgLangParser.CannyContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Canny}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitCanny(imgLangParser.CannyContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Sobel}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterSobel(imgLangParser.SobelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Sobel}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitSobel(imgLangParser.SobelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ChromaKey}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterChromaKey(imgLangParser.ChromaKeyContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ChromaKey}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitChromaKey(imgLangParser.ChromaKeyContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code GaussianBlur}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterGaussianBlur(imgLangParser.GaussianBlurContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code GaussianBlur}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitGaussianBlur(imgLangParser.GaussianBlurContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code GrayScale}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterGrayScale(imgLangParser.GrayScaleContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code GrayScale}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitGrayScale(imgLangParser.GrayScaleContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Sharpen}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterSharpen(imgLangParser.SharpenContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Sharpen}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitSharpen(imgLangParser.SharpenContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Translucent}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void enterTranslucent(imgLangParser.TranslucentContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Translucent}
+	 * labeled alternative in {@link imgLangParser#operation}.
+	 * @param ctx the parse tree
+	 */
+	void exitTranslucent(imgLangParser.TranslucentContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link imgLangParser#id}.
 	 * @param ctx the parse tree
 	 */
@@ -153,4 +249,14 @@ public interface imgLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPath(imgLangParser.PathContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link imgLangParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void enterValue(imgLangParser.ValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#value}.
+	 * @param ctx the parse tree
+	 */
+	void exitValue(imgLangParser.ValueContext ctx);
 }
