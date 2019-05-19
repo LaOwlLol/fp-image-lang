@@ -2,6 +2,7 @@ package fp.image.lang;
 
 import fauxpas.entities.FilterableImage;
 import fauxpas.filters.BlendFilter;
+import fauxpas.filters.ReflectionFilter;
 import fauxpas.filters.SumFilter;
 import fp.image.lang.parse.imgLangBaseListener;
 import fp.image.lang.parse.imgLangLexer;
@@ -71,6 +72,18 @@ public class Interpreter extends imgLangBaseListener {
         Image i1 = images.pop().getImage();
         Image i2 = images.pop().getImage();
         SumFilter f = new SumFilter();
+        FilterableImage r = new FilterableImage(i1);
+        r.applyFilter( f.apply( i -> i2, i -> i1 ) );
+        images.push( r );
+    }
+
+    @Override
+    public void exitMult(imgLangParser.MultContext ctx) {
+        super.exitMult(ctx);
+
+        Image i1 = images.pop().getImage();
+        Image i2 = images.pop().getImage();
+        ReflectionFilter f = new ReflectionFilter();
         FilterableImage r = new FilterableImage(i1);
         r.applyFilter( f.apply( i -> i2, i -> i1 ) );
         images.push( r );
