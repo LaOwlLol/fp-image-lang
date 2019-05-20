@@ -1,9 +1,7 @@
 package fp.image.lang;
 
 import fauxpas.entities.FilterableImage;
-import fauxpas.filters.BlendFilter;
-import fauxpas.filters.ReflectionFilter;
-import fauxpas.filters.SumFilter;
+import fauxpas.filters.*;
 import fp.image.lang.parse.imgLangBaseListener;
 import fp.image.lang.parse.imgLangLexer;
 import fp.image.lang.parse.imgLangParser;
@@ -27,10 +25,14 @@ public class Interpreter extends imgLangBaseListener {
 
     private FilterableImage last;
     private Stack<FilterableImage> images;
+    private Stack<Integer>   intArgs;
+    private Stack<Float>    floatArgs;
     private HashMap<String, FilterableImage> vars;
 
     public Interpreter() {
         images = new Stack<>();
+        intArgs = new Stack<>();
+        floatArgs = new Stack<>();
         vars = new HashMap<>();
     }
 
@@ -51,6 +53,27 @@ public class Interpreter extends imgLangBaseListener {
         super.exitAssignment(ctx);
         last = images.pop();
         vars.put(ctx.id().ID().getText(), last);
+    }
+
+    @Override
+    public void exitCanny(imgLangParser.CannyContext ctx) {
+        super.exitCanny(ctx);
+        Image i1 = images.pop().getImage();
+        Float f1 = floatArgs.pop();
+        Float f2 = floatArgs.pop();
+        FilterableImage r = new FilterableImage(i1);
+        r.applyFilter(new CannyFilter(f1, f2));
+        images.push( r );
+    }
+
+    @Override
+    public void exitSobel(imgLangParser.SobelContext ctx) {
+        super.exitSobel(ctx);
+        Image i1 = images.pop().getImage();
+        Float f1 = floatArgs.pop();
+        FilterableImage r = new FilterableImage(i1);
+        r.applyFilter(new SobelFilter(f1));
+        images.push( r );
     }
 
     @Override
@@ -111,6 +134,18 @@ public class Interpreter extends imgLangBaseListener {
             System.err.println("Unknown image file: "+ ctx.PATH_LITERAL().getText());
             //e.printStackTrace();
         }
+    }
+
+    @Override
+    public void exitIntValue(imgLangParser.IntValueContext ctx) {
+        super.exitIntValue(ctx);
+        intArgs.push(Integer.parseInt( ctx.INT().getText() ) );
+    }
+
+    @Override
+    public void exitFloatValue(imgLangParser.FloatValueContext ctx) {
+        super.exitFloatValue(ctx);
+        floatArgs.push( Float.parseFloat( ctx.FLOAT().getText() ) );
     }
 
     private FilterableImage getResult() {

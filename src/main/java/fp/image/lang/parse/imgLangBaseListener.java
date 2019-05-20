@@ -268,13 +268,25 @@ public class imgLangBaseListener implements imgLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterValue(imgLangParser.ValueContext ctx) { }
+	@Override public void enterIntValue(imgLangParser.IntValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitValue(imgLangParser.ValueContext ctx) { }
+	@Override public void exitIntValue(imgLangParser.IntValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFloatValue(imgLangParser.FloatValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFloatValue(imgLangParser.FloatValueContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -33,12 +33,12 @@ image
     ;
 
 operation
-    : 'canny' '(' image ',' FLOAT ',' FLOAT ')'                         #Canny
-    | 'sobel' '(' image ',' FLOAT ')'                                   #Sobel
-    | 'chromaKey' '(' image ',' FLOAT ',' FLOAT ',' FLOAT ')'           #ChromaKey
-    | 'gaussianBlur' '(' image ',' INT ',' FLOAT ')'                    #GaussianBlur
+    : 'canny' '(' image ',' floatValue ',' floatValue ')'                         #Canny
+    | 'sobel' '(' image ',' floatValue ')'                                   #Sobel
+    | 'chromaKey' '(' image ',' floatValue ',' floatValue ',' floatValue ')'           #ChromaKey
+    | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                    #GaussianBlur
     | 'grayScale' '(' image ')'                                         #GrayScale
-    | 'sharpen' '(' image ',' FLOAT ')'                                 #Sharpen
+    | 'sharpen' '(' image ',' floatValue ')'                                 #Sharpen
     | 'translucent' '(' image ')'                                       #Translucent
     ;
 
@@ -50,9 +50,12 @@ path
     : PATH_LITERAL
     ;
 
-value
+intValue
     : INT
-    | FLOAT
+    ;
+
+floatValue
+    : FLOAT
     ;
 
 ID

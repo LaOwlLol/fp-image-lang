@@ -250,13 +250,23 @@ public interface imgLangListener extends ParseTreeListener {
 	 */
 	void exitPath(imgLangParser.PathContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link imgLangParser#value}.
+	 * Enter a parse tree produced by {@link imgLangParser#intValue}.
 	 * @param ctx the parse tree
 	 */
-	void enterValue(imgLangParser.ValueContext ctx);
+	void enterIntValue(imgLangParser.IntValueContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link imgLangParser#value}.
+	 * Exit a parse tree produced by {@link imgLangParser#intValue}.
 	 * @param ctx the parse tree
 	 */
-	void exitValue(imgLangParser.ValueContext ctx);
+	void exitIntValue(imgLangParser.IntValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link imgLangParser#floatValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatValue(imgLangParser.FloatValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#floatValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatValue(imgLangParser.FloatValueContext ctx);
 }
