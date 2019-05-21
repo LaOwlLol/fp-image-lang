@@ -84,7 +84,7 @@ public class Interpreter extends imgLangBaseListener {
         Image i2 = images.pop().getImage();
         BlendFilter f = new BlendFilter();
         FilterableImage r = new FilterableImage(i1);
-        r.applyFilter( f.apply( i -> i2, i -> i1 ) );
+        r.setImage( f.apply( i2, i1 ) );
         images.push( r );
     }
 
@@ -96,7 +96,7 @@ public class Interpreter extends imgLangBaseListener {
         Image i2 = images.pop().getImage();
         SumFilter f = new SumFilter();
         FilterableImage r = new FilterableImage(i1);
-        r.applyFilter( f.apply( i -> i2, i -> i1 ) );
+        r.setImage( f.apply( i2, i1 ) );
         images.push( r );
     }
 
@@ -108,7 +108,7 @@ public class Interpreter extends imgLangBaseListener {
         Image i2 = images.pop().getImage();
         ReflectionFilter f = new ReflectionFilter();
         FilterableImage r = new FilterableImage(i1);
-        r.applyFilter( f.apply( i -> i2, i -> i1 ) );
+        r.setImage( f.apply( i2, i1 ) );
         images.push( r );
     }
 

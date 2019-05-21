@@ -33,13 +33,13 @@ image
     ;
 
 operation
-    : 'canny' '(' image ',' floatValue ',' floatValue ')'                         #Canny
-    | 'sobel' '(' image ',' floatValue ')'                                   #Sobel
+    : 'canny' '(' image ',' floatValue ',' floatValue ')'                              #Canny
+    | 'sobel' '(' image ',' floatValue ')'                                             #Sobel
     | 'chromaKey' '(' image ',' floatValue ',' floatValue ',' floatValue ')'           #ChromaKey
-    | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                    #GaussianBlur
-    | 'grayScale' '(' image ')'                                         #GrayScale
-    | 'sharpen' '(' image ',' floatValue ')'                                 #Sharpen
-    | 'translucent' '(' image ')'                                       #Translucent
+    | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
+    | 'grayScale' '(' image ')'                                                        #GrayScale
+    | 'sharpen' '(' image ',' floatValue ')'                                           #Sharpen
+    | 'translucent' '(' image ')'                                                      #Translucent
     ;
 
 id
