@@ -35,19 +35,11 @@ image
 operation
     : 'canny' '(' image ',' floatValue ',' floatValue ')'                              #Canny
     | 'sobel' '(' image ',' floatValue ')'                                             #Sobel
-    | 'chromaKey' '(' image ',' floatValue ',' floatValue ',' floatValue ')'           #ChromaKey
+    | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
     | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
     | 'grayScale' '(' image ')'                                                        #GrayScale
     | 'sharpen' '(' image ',' floatValue ')'                                           #Sharpen
     | 'translucent' '(' image ')'                                                      #Translucent
-    ;
-
-id
-    : ID
-    ;
-
-path
-    : PATH_LITERAL
     ;
 
 intValue
@@ -58,33 +50,31 @@ floatValue
     : FLOAT
     ;
 
-ID
-    : VALID_ID_START VALID_ID_CHAR*
+id
+    : ID
     ;
 
-fragment VALID_ID_START
-    : ('a' .. 'z')
-    | ('A' .. 'Z')
+path
+    : PATH_LITERAL
+    ;
+
+ID
+    : ID_LETTER (ID_LETTER | DIGIT)*
+    ;
+
+fragment ID_LETTER
+    : 'a' .. 'z'
+    | 'A' .. 'Z'
     | '_'
     ;
 
-fragment VALID_ID_CHAR
-    : VALID_ID_START
-    | ID_STRING
-    ;
-
-ID_STRING
-    : [a-zA-Z~0-9] [a-zA-Z0-9-]*
-    ;
-
 PATH_LITERAL
-    : VALID_PATH_START VALID_PATH_CHAR* IMAGE_EXTENSION
+    : VALID_PATH_START (VALID_PATH_CHAR | DIGIT)* IMAGE_EXTENSION
     ;
 
 fragment VALID_PATH_START
     : ('a' .. 'z')
     | ('A' .. 'Z')
-    | '_'
     | './'
     | '/'
     | ('a' .. 'z')':/'
@@ -92,8 +82,10 @@ fragment VALID_PATH_START
     ;
 
 fragment VALID_PATH_CHAR
-    : VALID_PATH_START
-    | PATH_STRING
+    : ('a' .. 'z')
+    | ('A' .. 'Z')
+    | '_'
+    | '/'
     ;
 
 fragment IMAGE_EXTENSION
@@ -124,10 +116,6 @@ NEWLINE
     : '\r\n'
     | 'r'
     | '\n'
-    ;
-
-PATH_STRING
-    : [a-zA-Z~0-9] [a-zA-Z0-9.-]*
     ;
 
 EQUAL

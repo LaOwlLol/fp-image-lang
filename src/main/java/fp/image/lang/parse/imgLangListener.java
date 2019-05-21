@@ -230,26 +230,6 @@ public interface imgLangListener extends ParseTreeListener {
 	 */
 	void exitTranslucent(imgLangParser.TranslucentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link imgLangParser#id}.
-	 * @param ctx the parse tree
-	 */
-	void enterId(imgLangParser.IdContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link imgLangParser#id}.
-	 * @param ctx the parse tree
-	 */
-	void exitId(imgLangParser.IdContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link imgLangParser#path}.
-	 * @param ctx the parse tree
-	 */
-	void enterPath(imgLangParser.PathContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link imgLangParser#path}.
-	 * @param ctx the parse tree
-	 */
-	void exitPath(imgLangParser.PathContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link imgLangParser#intValue}.
 	 * @param ctx the parse tree
 	 */
@@ -269,4 +249,24 @@ public interface imgLangListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFloatValue(imgLangParser.FloatValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link imgLangParser#id}.
+	 * @param ctx the parse tree
+	 */
+	void enterId(imgLangParser.IdContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#id}.
+	 * @param ctx the parse tree
+	 */
+	void exitId(imgLangParser.IdContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link imgLangParser#path}.
+	 * @param ctx the parse tree
+	 */
+	void enterPath(imgLangParser.PathContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link imgLangParser#path}.
+	 * @param ctx the parse tree
+	 */
+	void exitPath(imgLangParser.PathContext ctx);
 }

@@ -7,6 +7,7 @@ import fp.image.lang.parse.imgLangLexer;
 import fp.image.lang.parse.imgLangParser;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -77,14 +78,47 @@ public class Interpreter extends imgLangBaseListener {
     }
 
     @Override
+    public void exitChromaKey(imgLangParser.ChromaKeyContext ctx) {
+        super.exitChromaKey(ctx);
+
+        Image i1 = images.pop().getImage();
+        Integer r = intArgs.pop();
+        Integer g = intArgs.pop();
+        Integer b = intArgs.pop();
+        Float t = floatArgs.pop();
+        FilterableImage re = new FilterableImage(i1);
+        re.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), t));
+        images.push( re );
+    }
+
+    @Override
+    public void exitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
+        super.exitGaussianBlur(ctx);
+    }
+
+    @Override
+    public void exitGrayScale(imgLangParser.GrayScaleContext ctx) {
+        super.exitGrayScale(ctx);
+    }
+
+    @Override
+    public void exitSharpen(imgLangParser.SharpenContext ctx) {
+        super.exitSharpen(ctx);
+    }
+
+    @Override
+    public void exitTranslucent(imgLangParser.TranslucentContext ctx) {
+        super.exitTranslucent(ctx);
+    }
+
+    @Override
     public void exitMinus(imgLangParser.MinusContext ctx) {
         super.exitMinus(ctx);
 
         Image i1 = images.pop().getImage();
         Image i2 = images.pop().getImage();
         BlendFilter f = new BlendFilter();
-        FilterableImage r = new FilterableImage(i1);
-        r.setImage( f.apply( i2, i1 ) );
+        FilterableImage r = new FilterableImage(f.apply( i2, i1 ));
         images.push( r );
     }
 
@@ -95,8 +129,7 @@ public class Interpreter extends imgLangBaseListener {
         Image i1 = images.pop().getImage();
         Image i2 = images.pop().getImage();
         SumFilter f = new SumFilter();
-        FilterableImage r = new FilterableImage(i1);
-        r.setImage( f.apply( i2, i1 ) );
+        FilterableImage r = new FilterableImage(f.apply( i2, i1 ));
         images.push( r );
     }
 
@@ -107,8 +140,7 @@ public class Interpreter extends imgLangBaseListener {
         Image i1 = images.pop().getImage();
         Image i2 = images.pop().getImage();
         ReflectionFilter f = new ReflectionFilter();
-        FilterableImage r = new FilterableImage(i1);
-        r.setImage( f.apply( i2, i1 ) );
+        FilterableImage r = new FilterableImage(f.apply( i2, i1 ));
         images.push( r );
     }
 

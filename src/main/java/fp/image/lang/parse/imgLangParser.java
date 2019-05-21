@@ -18,17 +18,16 @@ public class imgLangParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
-		T__9=10, ID=11, ID_STRING=12, PATH_LITERAL=13, INT=14, FLOAT=15, NEWLINE=16, 
-		PATH_STRING=17, EQUAL=18, MULT=19, DIV=20, PLUS=21, MINUS=22, COMMENT=23, 
-		WS=24;
+		T__9=10, ID=11, PATH_LITERAL=12, INT=13, FLOAT=14, NEWLINE=15, EQUAL=16, 
+		MULT=17, DIV=18, PLUS=19, MINUS=20, COMMENT=21, WS=22;
 	public static final int
 		RULE_script = 0, RULE_line = 1, RULE_assignment = 2, RULE_expression = 3, 
-		RULE_term = 4, RULE_image = 5, RULE_operation = 6, RULE_id = 7, RULE_path = 8, 
-		RULE_intValue = 9, RULE_floatValue = 10;
+		RULE_term = 4, RULE_image = 5, RULE_operation = 6, RULE_intValue = 7, 
+		RULE_floatValue = 8, RULE_id = 9, RULE_path = 10;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"script", "line", "assignment", "expression", "term", "image", "operation", 
-			"id", "path", "intValue", "floatValue"
+			"intValue", "floatValue", "id", "path"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -37,15 +36,15 @@ public class imgLangParser extends Parser {
 		return new String[] {
 			null, "'canny'", "'('", "','", "')'", "'sobel'", "'chromaKey'", "'gaussianBlur'", 
 			"'grayScale'", "'sharpen'", "'translucent'", null, null, null, null, 
-			null, null, null, "'='", "'*'", "'/'", "'+'", "'-'"
+			null, "'='", "'*'", "'/'", "'+'", "'-'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, "ID", 
-			"ID_STRING", "PATH_LITERAL", "INT", "FLOAT", "NEWLINE", "PATH_STRING", 
-			"EQUAL", "MULT", "DIV", "PLUS", "MINUS", "COMMENT", "WS"
+			"PATH_LITERAL", "INT", "FLOAT", "NEWLINE", "EQUAL", "MULT", "DIV", "PLUS", 
+			"MINUS", "COMMENT", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -781,11 +780,14 @@ public class imgLangParser extends Parser {
 		public ImageContext image() {
 			return getRuleContext(ImageContext.class,0);
 		}
-		public List<FloatValueContext> floatValue() {
-			return getRuleContexts(FloatValueContext.class);
+		public List<IntValueContext> intValue() {
+			return getRuleContexts(IntValueContext.class);
 		}
-		public FloatValueContext floatValue(int i) {
-			return getRuleContext(FloatValueContext.class,i);
+		public IntValueContext intValue(int i) {
+			return getRuleContext(IntValueContext.class,i);
+		}
+		public FloatValueContext floatValue() {
+			return getRuleContext(FloatValueContext.class,0);
 		}
 		public ChromaKeyContext(OperationContext ctx) { copyFrom(ctx); }
 		@Override
@@ -833,7 +835,7 @@ public class imgLangParser extends Parser {
 		OperationContext _localctx = new OperationContext(_ctx, getState());
 		enterRule(_localctx, 12, RULE_operation);
 		try {
-			setState(140);
+			setState(142);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__0:
@@ -889,16 +891,20 @@ public class imgLangParser extends Parser {
 				setState(106);
 				match(T__2);
 				setState(107);
-				floatValue();
+				intValue();
 				setState(108);
 				match(T__2);
 				setState(109);
-				floatValue();
+				intValue();
 				setState(110);
 				match(T__2);
 				setState(111);
-				floatValue();
+				intValue();
 				setState(112);
+				match(T__2);
+				setState(113);
+				floatValue();
+				setState(114);
 				match(T__3);
 				}
 				break;
@@ -906,21 +912,21 @@ public class imgLangParser extends Parser {
 				_localctx = new GaussianBlurContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(114);
-				match(T__6);
-				setState(115);
-				match(T__1);
 				setState(116);
-				image();
+				match(T__6);
 				setState(117);
-				match(T__2);
+				match(T__1);
 				setState(118);
-				intValue();
+				image();
 				setState(119);
 				match(T__2);
 				setState(120);
-				floatValue();
+				intValue();
 				setState(121);
+				match(T__2);
+				setState(122);
+				floatValue();
+				setState(123);
 				match(T__3);
 				}
 				break;
@@ -928,13 +934,13 @@ public class imgLangParser extends Parser {
 				_localctx = new GrayScaleContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(123);
-				match(T__7);
-				setState(124);
-				match(T__1);
 				setState(125);
-				image();
+				match(T__7);
 				setState(126);
+				match(T__1);
+				setState(127);
+				image();
+				setState(128);
 				match(T__3);
 				}
 				break;
@@ -942,17 +948,17 @@ public class imgLangParser extends Parser {
 				_localctx = new SharpenContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(128);
-				match(T__8);
-				setState(129);
-				match(T__1);
 				setState(130);
-				image();
+				match(T__8);
 				setState(131);
-				match(T__2);
+				match(T__1);
 				setState(132);
-				floatValue();
+				image();
 				setState(133);
+				match(T__2);
+				setState(134);
+				floatValue();
+				setState(135);
 				match(T__3);
 				}
 				break;
@@ -960,92 +966,18 @@ public class imgLangParser extends Parser {
 				_localctx = new TranslucentContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(135);
-				match(T__9);
-				setState(136);
-				match(T__1);
 				setState(137);
-				image();
+				match(T__9);
 				setState(138);
+				match(T__1);
+				setState(139);
+				image();
+				setState(140);
 				match(T__3);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class IdContext extends ParserRuleContext {
-		public TerminalNode ID() { return getToken(imgLangParser.ID, 0); }
-		public IdContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_id; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).enterId(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).exitId(this);
-		}
-	}
-
-	public final IdContext id() throws RecognitionException {
-		IdContext _localctx = new IdContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_id);
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(142);
-			match(ID);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class PathContext extends ParserRuleContext {
-		public TerminalNode PATH_LITERAL() { return getToken(imgLangParser.PATH_LITERAL, 0); }
-		public PathContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_path; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).enterPath(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).exitPath(this);
-		}
-	}
-
-	public final PathContext path() throws RecognitionException {
-		PathContext _localctx = new PathContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_path);
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(144);
-			match(PATH_LITERAL);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1077,11 +1009,11 @@ public class imgLangParser extends Parser {
 
 	public final IntValueContext intValue() throws RecognitionException {
 		IntValueContext _localctx = new IntValueContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_intValue);
+		enterRule(_localctx, 14, RULE_intValue);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(146);
+			setState(144);
 			match(INT);
 			}
 		}
@@ -1114,12 +1046,86 @@ public class imgLangParser extends Parser {
 
 	public final FloatValueContext floatValue() throws RecognitionException {
 		FloatValueContext _localctx = new FloatValueContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_floatValue);
+		enterRule(_localctx, 16, RULE_floatValue);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(146);
+			match(FLOAT);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class IdContext extends ParserRuleContext {
+		public TerminalNode ID() { return getToken(imgLangParser.ID, 0); }
+		public IdContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_id; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).enterId(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).exitId(this);
+		}
+	}
+
+	public final IdContext id() throws RecognitionException {
+		IdContext _localctx = new IdContext(_ctx, getState());
+		enterRule(_localctx, 18, RULE_id);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(148);
-			match(FLOAT);
+			match(ID);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class PathContext extends ParserRuleContext {
+		public TerminalNode PATH_LITERAL() { return getToken(imgLangParser.PATH_LITERAL, 0); }
+		public PathContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_path; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).enterPath(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof imgLangListener ) ((imgLangListener)listener).exitPath(this);
+		}
+	}
+
+	public final PathContext path() throws RecognitionException {
+		PathContext _localctx = new PathContext(_ctx, getState());
+		enterRule(_localctx, 20, RULE_path);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(150);
+			match(PATH_LITERAL);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1162,7 +1168,7 @@ public class imgLangParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\32\u0099\4\2\t\2"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\30\u009b\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\3\2\7\2\32\n\2\f\2\16\2\35\13\2\3\2\3\2\6\2!\n\2\r\2\16"+
 		"\2\"\3\2\7\2&\n\2\f\2\16\2)\13\2\3\2\7\2,\n\2\f\2\16\2/\13\2\3\3\3\3\5"+
@@ -1171,37 +1177,38 @@ public class imgLangParser extends Parser {
 		"S\13\6\3\7\3\7\3\7\5\7X\n\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3"+
 		"\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b"+
 		"\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3"+
-		"\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\5\b\u008f\n\b\3\t\3\t\3\n\3\n\3\13\3\13"+
-		"\3\f\3\f\3\f\2\4\b\n\r\2\4\6\b\n\f\16\20\22\24\26\2\2\2\u009e\2\33\3\2"+
-		"\2\2\4\62\3\2\2\2\6\64\3\2\2\2\b8\3\2\2\2\nF\3\2\2\2\fW\3\2\2\2\16\u008e"+
-		"\3\2\2\2\20\u0090\3\2\2\2\22\u0092\3\2\2\2\24\u0094\3\2\2\2\26\u0096\3"+
-		"\2\2\2\30\32\7\22\2\2\31\30\3\2\2\2\32\35\3\2\2\2\33\31\3\2\2\2\33\34"+
-		"\3\2\2\2\34\36\3\2\2\2\35\33\3\2\2\2\36\'\5\4\3\2\37!\7\22\2\2 \37\3\2"+
-		"\2\2!\"\3\2\2\2\" \3\2\2\2\"#\3\2\2\2#$\3\2\2\2$&\5\4\3\2% \3\2\2\2&)"+
-		"\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(-\3\2\2\2)\'\3\2\2\2*,\7\22\2\2+*\3\2\2"+
-		"\2,/\3\2\2\2-+\3\2\2\2-.\3\2\2\2.\3\3\2\2\2/-\3\2\2\2\60\63\5\6\4\2\61"+
-		"\63\5\b\5\2\62\60\3\2\2\2\62\61\3\2\2\2\63\5\3\2\2\2\64\65\5\20\t\2\65"+
-		"\66\7\24\2\2\66\67\5\b\5\2\67\7\3\2\2\289\b\5\1\29:\5\n\6\2:C\3\2\2\2"+
-		";<\f\4\2\2<=\7\27\2\2=B\5\n\6\2>?\f\3\2\2?@\7\30\2\2@B\5\n\6\2A;\3\2\2"+
-		"\2A>\3\2\2\2BE\3\2\2\2CA\3\2\2\2CD\3\2\2\2D\t\3\2\2\2EC\3\2\2\2FG\b\6"+
-		"\1\2GH\5\f\7\2HQ\3\2\2\2IJ\f\4\2\2JK\7\25\2\2KP\5\f\7\2LM\f\3\2\2MN\7"+
-		"\26\2\2NP\5\f\7\2OI\3\2\2\2OL\3\2\2\2PS\3\2\2\2QO\3\2\2\2QR\3\2\2\2R\13"+
-		"\3\2\2\2SQ\3\2\2\2TX\5\20\t\2UX\5\22\n\2VX\5\16\b\2WT\3\2\2\2WU\3\2\2"+
-		"\2WV\3\2\2\2X\r\3\2\2\2YZ\7\3\2\2Z[\7\4\2\2[\\\5\f\7\2\\]\7\5\2\2]^\5"+
-		"\26\f\2^_\7\5\2\2_`\5\26\f\2`a\7\6\2\2a\u008f\3\2\2\2bc\7\7\2\2cd\7\4"+
-		"\2\2de\5\f\7\2ef\7\5\2\2fg\5\26\f\2gh\7\6\2\2h\u008f\3\2\2\2ij\7\b\2\2"+
-		"jk\7\4\2\2kl\5\f\7\2lm\7\5\2\2mn\5\26\f\2no\7\5\2\2op\5\26\f\2pq\7\5\2"+
-		"\2qr\5\26\f\2rs\7\6\2\2s\u008f\3\2\2\2tu\7\t\2\2uv\7\4\2\2vw\5\f\7\2w"+
-		"x\7\5\2\2xy\5\24\13\2yz\7\5\2\2z{\5\26\f\2{|\7\6\2\2|\u008f\3\2\2\2}~"+
-		"\7\n\2\2~\177\7\4\2\2\177\u0080\5\f\7\2\u0080\u0081\7\6\2\2\u0081\u008f"+
-		"\3\2\2\2\u0082\u0083\7\13\2\2\u0083\u0084\7\4\2\2\u0084\u0085\5\f\7\2"+
-		"\u0085\u0086\7\5\2\2\u0086\u0087\5\26\f\2\u0087\u0088\7\6\2\2\u0088\u008f"+
-		"\3\2\2\2\u0089\u008a\7\f\2\2\u008a\u008b\7\4\2\2\u008b\u008c\5\f\7\2\u008c"+
-		"\u008d\7\6\2\2\u008d\u008f\3\2\2\2\u008eY\3\2\2\2\u008eb\3\2\2\2\u008e"+
-		"i\3\2\2\2\u008et\3\2\2\2\u008e}\3\2\2\2\u008e\u0082\3\2\2\2\u008e\u0089"+
-		"\3\2\2\2\u008f\17\3\2\2\2\u0090\u0091\7\r\2\2\u0091\21\3\2\2\2\u0092\u0093"+
-		"\7\17\2\2\u0093\23\3\2\2\2\u0094\u0095\7\20\2\2\u0095\25\3\2\2\2\u0096"+
-		"\u0097\7\21\2\2\u0097\27\3\2\2\2\r\33\"\'-\62ACOQW\u008e";
+		"\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\5\b\u0091\n\b\3\t\3\t\3\n\3\n\3"+
+		"\13\3\13\3\f\3\f\3\f\2\4\b\n\r\2\4\6\b\n\f\16\20\22\24\26\2\2\2\u00a0"+
+		"\2\33\3\2\2\2\4\62\3\2\2\2\6\64\3\2\2\2\b8\3\2\2\2\nF\3\2\2\2\fW\3\2\2"+
+		"\2\16\u0090\3\2\2\2\20\u0092\3\2\2\2\22\u0094\3\2\2\2\24\u0096\3\2\2\2"+
+		"\26\u0098\3\2\2\2\30\32\7\21\2\2\31\30\3\2\2\2\32\35\3\2\2\2\33\31\3\2"+
+		"\2\2\33\34\3\2\2\2\34\36\3\2\2\2\35\33\3\2\2\2\36\'\5\4\3\2\37!\7\21\2"+
+		"\2 \37\3\2\2\2!\"\3\2\2\2\" \3\2\2\2\"#\3\2\2\2#$\3\2\2\2$&\5\4\3\2% "+
+		"\3\2\2\2&)\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(-\3\2\2\2)\'\3\2\2\2*,\7\21\2"+
+		"\2+*\3\2\2\2,/\3\2\2\2-+\3\2\2\2-.\3\2\2\2.\3\3\2\2\2/-\3\2\2\2\60\63"+
+		"\5\6\4\2\61\63\5\b\5\2\62\60\3\2\2\2\62\61\3\2\2\2\63\5\3\2\2\2\64\65"+
+		"\5\24\13\2\65\66\7\22\2\2\66\67\5\b\5\2\67\7\3\2\2\289\b\5\1\29:\5\n\6"+
+		"\2:C\3\2\2\2;<\f\4\2\2<=\7\25\2\2=B\5\n\6\2>?\f\3\2\2?@\7\26\2\2@B\5\n"+
+		"\6\2A;\3\2\2\2A>\3\2\2\2BE\3\2\2\2CA\3\2\2\2CD\3\2\2\2D\t\3\2\2\2EC\3"+
+		"\2\2\2FG\b\6\1\2GH\5\f\7\2HQ\3\2\2\2IJ\f\4\2\2JK\7\23\2\2KP\5\f\7\2LM"+
+		"\f\3\2\2MN\7\24\2\2NP\5\f\7\2OI\3\2\2\2OL\3\2\2\2PS\3\2\2\2QO\3\2\2\2"+
+		"QR\3\2\2\2R\13\3\2\2\2SQ\3\2\2\2TX\5\24\13\2UX\5\26\f\2VX\5\16\b\2WT\3"+
+		"\2\2\2WU\3\2\2\2WV\3\2\2\2X\r\3\2\2\2YZ\7\3\2\2Z[\7\4\2\2[\\\5\f\7\2\\"+
+		"]\7\5\2\2]^\5\22\n\2^_\7\5\2\2_`\5\22\n\2`a\7\6\2\2a\u0091\3\2\2\2bc\7"+
+		"\7\2\2cd\7\4\2\2de\5\f\7\2ef\7\5\2\2fg\5\22\n\2gh\7\6\2\2h\u0091\3\2\2"+
+		"\2ij\7\b\2\2jk\7\4\2\2kl\5\f\7\2lm\7\5\2\2mn\5\20\t\2no\7\5\2\2op\5\20"+
+		"\t\2pq\7\5\2\2qr\5\20\t\2rs\7\5\2\2st\5\22\n\2tu\7\6\2\2u\u0091\3\2\2"+
+		"\2vw\7\t\2\2wx\7\4\2\2xy\5\f\7\2yz\7\5\2\2z{\5\20\t\2{|\7\5\2\2|}\5\22"+
+		"\n\2}~\7\6\2\2~\u0091\3\2\2\2\177\u0080\7\n\2\2\u0080\u0081\7\4\2\2\u0081"+
+		"\u0082\5\f\7\2\u0082\u0083\7\6\2\2\u0083\u0091\3\2\2\2\u0084\u0085\7\13"+
+		"\2\2\u0085\u0086\7\4\2\2\u0086\u0087\5\f\7\2\u0087\u0088\7\5\2\2\u0088"+
+		"\u0089\5\22\n\2\u0089\u008a\7\6\2\2\u008a\u0091\3\2\2\2\u008b\u008c\7"+
+		"\f\2\2\u008c\u008d\7\4\2\2\u008d\u008e\5\f\7\2\u008e\u008f\7\6\2\2\u008f"+
+		"\u0091\3\2\2\2\u0090Y\3\2\2\2\u0090b\3\2\2\2\u0090i\3\2\2\2\u0090v\3\2"+
+		"\2\2\u0090\177\3\2\2\2\u0090\u0084\3\2\2\2\u0090\u008b\3\2\2\2\u0091\17"+
+		"\3\2\2\2\u0092\u0093\7\17\2\2\u0093\21\3\2\2\2\u0094\u0095\7\20\2\2\u0095"+
+		"\23\3\2\2\2\u0096\u0097\7\r\2\2\u0097\25\3\2\2\2\u0098\u0099\7\16\2\2"+
+		"\u0099\27\3\2\2\2\r\33\"\'-\62ACOQW\u0090";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
