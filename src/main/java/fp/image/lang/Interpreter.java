@@ -59,10 +59,9 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitCanny(imgLangParser.CannyContext ctx) {
         super.exitCanny(ctx);
-        Image i1 = images.pop().getImage();
         Float f1 = floatArgs.pop();
         Float f2 = floatArgs.pop();
-        FilterableImage r = new FilterableImage(i1);
+        FilterableImage r = new FilterableImage(images.pop().getImage());
         r.applyFilter(new CannyFilter(f1, f2));
         images.push( r );
     }
@@ -70,9 +69,8 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitSobel(imgLangParser.SobelContext ctx) {
         super.exitSobel(ctx);
-        Image i1 = images.pop().getImage();
         Float f1 = floatArgs.pop();
-        FilterableImage r = new FilterableImage(i1);
+        FilterableImage r = new FilterableImage(images.pop().getImage());
         r.applyFilter(new SobelFilter(f1));
         images.push( r );
     }
@@ -81,12 +79,11 @@ public class Interpreter extends imgLangBaseListener {
     public void exitChromaKey(imgLangParser.ChromaKeyContext ctx) {
         super.exitChromaKey(ctx);
 
-        Image i1 = images.pop().getImage();
         Integer r = intArgs.pop();
         Integer g = intArgs.pop();
         Integer b = intArgs.pop();
         Float t = floatArgs.pop();
-        FilterableImage re = new FilterableImage(i1);
+        FilterableImage re = new FilterableImage(images.pop().getImage());
         re.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), t));
         images.push( re );
     }
@@ -94,6 +91,12 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
         super.exitGaussianBlur(ctx);
+
+        Integer s = intArgs.pop();
+        Float f = floatArgs.pop();
+        FilterableImage r = new FilterableImage(images.pop().getImage());
+        r.applyFilter(new GaussianBlur(s, f));
+        images.push( r );
     }
 
     @Override
