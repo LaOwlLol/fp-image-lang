@@ -16,3 +16,6 @@ gradle-app.setting
 #ignore idea IDE folder.
 .idea
 *.iml
+
+#ignore the generated antlr files
+src/main/java/fp/image/lang/parse

@@ -23,7 +23,7 @@ expression
 term
     : image                 #ImageTerm
     | term MULT image       #Mult
-    | term DIV image        #Div
+//    | term DIV image        #Div
     ;
 
 image
