@@ -1,4 +1,4 @@
-# fp-image-lang
+# fp-image-lang v0.1.0
 
 A language and interpreter for the fp-image api.
 
