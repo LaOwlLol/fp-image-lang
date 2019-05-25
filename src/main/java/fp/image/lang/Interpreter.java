@@ -102,16 +102,26 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitGrayScale(imgLangParser.GrayScaleContext ctx) {
         super.exitGrayScale(ctx);
+        FilterableImage r = new FilterableImage(images.pop().getImage());
+        r.applyFilter(new GrayscaleFilter());
+        images.push( r );
     }
 
     @Override
-    public void exitSharpen(imgLangParser.SharpenContext ctx) {
-        super.exitSharpen(ctx);
+    public void exitRedist(imgLangParser.RedistContext ctx) {
+        super.exitRedist(ctx);
+        Float f = floatArgs.pop();
+        FilterableImage r = new FilterableImage(images.pop().getImage());
+        r.applyFilter(new RedistributionFilter(f));
+        images.push( r );
     }
 
     @Override
     public void exitTranslucent(imgLangParser.TranslucentContext ctx) {
         super.exitTranslucent(ctx);
+        FilterableImage r = new FilterableImage(images.pop().getImage());
+        r.applyFilter(new TranslucentFilter());
+        images.push( r );
     }
 
     @Override

@@ -38,7 +38,7 @@ operation
     | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
     | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
     | 'grayScale' '(' image ')'                                                        #GrayScale
-    | 'sharpen' '(' image ',' floatValue ')'                                           #Sharpen
+    | 'redist' '(' image ',' floatValue ')'                                            #Redist
     | 'translucent' '(' image ')'                                                      #Translucent
     ;
 
@@ -143,5 +143,5 @@ COMMENT
     ;
 
 WS
-   : [ t] + -> skip
+   : [ \t] + -> skip
    ;
