@@ -26,14 +26,16 @@ public class Interpreter extends imgLangBaseListener {
 
     private FilterableImage last;
     private Stack<FilterableImage> images;
-    private Stack<Integer>   intArgs;
-    private Stack<Float>    floatArgs;
+    private Stack<Integer> intArgs;
+    private Stack<Float> floatArgs;
+    private Stack<Boolean> boolArgs;
     private HashMap<String, FilterableImage> vars;
 
     public Interpreter() {
         images = new Stack<>();
         intArgs = new Stack<>();
         floatArgs = new Stack<>();
+        boolArgs = new Stack<>();
         vars = new HashMap<>();
     }
 
@@ -71,7 +73,9 @@ public class Interpreter extends imgLangBaseListener {
         super.exitSobel(ctx);
         Float f1 = floatArgs.pop();
         FilterableImage r = new FilterableImage(images.pop().getImage());
-        r.applyFilter(new SobelFilter(f1));
+        Boolean b1 = boolArgs.empty() ? new Boolean("false") : boolArgs.pop() ;
+        Boolean b2 = boolArgs.empty() ? new Boolean("false") : boolArgs.pop() ;
+        r.applyFilter(new SobelFilter(f1, b1.booleanValue(), b2.booleanValue()));
         images.push( r );
     }
 
@@ -191,6 +195,12 @@ public class Interpreter extends imgLangBaseListener {
     public void exitFloatValue(imgLangParser.FloatValueContext ctx) {
         super.exitFloatValue(ctx);
         floatArgs.push( Float.parseFloat( ctx.FLOAT().getText() ) );
+    }
+
+    @Override
+    public void exitBoolValue(imgLangParser.BoolValueContext ctx) {
+        super.enterBoolValue(ctx);
+        boolArgs.push( new Boolean( ctx.BOOL().getText().substring(1) ) );
     }
 
     private FilterableImage getResult() {

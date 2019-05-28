@@ -34,7 +34,7 @@ image
 
 operation
     : 'canny' '(' image ',' floatValue ',' floatValue ')'                              #Canny
-    | 'sobel' '(' image ',' floatValue ')'                                             #Sobel
+    | 'sobel' '(' image ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
     | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
     | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
     | 'grayScale' '(' image ')'                                                        #GrayScale
@@ -48,6 +48,10 @@ intValue
 
 floatValue
     : FLOAT
+    ;
+
+boolValue
+    : BOOL
     ;
 
 id
@@ -112,6 +116,18 @@ FLOAT
     | '.' DIGIT+
     ;
 
+fragment TRUELITERAL
+    : 'true'
+    ;
+
+fragment FALSELITERAL
+    : 'false'
+    ;
+
+BOOL
+    : '#'(TRUELITERAL|FALSELITERAL)
+    ;
+
 NEWLINE
     : '\r\n'
     | 'r'
@@ -139,7 +155,7 @@ MINUS
     ;
 
 COMMENT
-    : '#' ~[\r\n]* ->skip
+    : ';' ~[\r\n]* ->skip
     ;
 
 WS
