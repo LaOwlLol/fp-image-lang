@@ -73,9 +73,30 @@ public class Interpreter extends imgLangBaseListener {
         super.exitSobel(ctx);
         Float f1 = floatArgs.pop();
         FilterableImage r = new FilterableImage(images.pop().getImage());
-        Boolean b1 = boolArgs.empty() ? new Boolean("false") : boolArgs.pop() ;
-        Boolean b2 = boolArgs.empty() ? new Boolean("false") : boolArgs.pop() ;
-        r.applyFilter(new SobelFilter(f1, b1.booleanValue(), b2.booleanValue()));
+        boolean both = false;
+        Boolean b1;
+        Boolean b2;
+        if (boolArgs.empty()) {
+            b1 = false;
+            b2 = false;
+        }
+        else {
+            b1 = boolArgs.pop();
+            if (boolArgs.empty()) {
+                b2 = false;
+            }
+            else {
+                b2 = boolArgs.pop();
+                both = true;
+            }
+        }
+
+        if (both) {
+            r.applyFilter(new SobelFilter(f1, b2, b1));
+        }
+        else {
+            r.applyFilter(new SobelFilter(f1, b1));
+        }
         images.push( r );
     }
 
@@ -107,7 +128,17 @@ public class Interpreter extends imgLangBaseListener {
     public void exitGrayScale(imgLangParser.GrayScaleContext ctx) {
         super.exitGrayScale(ctx);
         FilterableImage r = new FilterableImage(images.pop().getImage());
-        r.applyFilter(new GrayscaleFilter());
+
+        if (!floatArgs.empty()) {
+            float bl = floatArgs.pop();
+            float gn = floatArgs.pop();
+            float rd = floatArgs.pop();
+            r.applyFilter(new GrayscaleFilter(rd, gn, bl));
+        }
+        else {
+            r.applyFilter(new GrayscaleFilter());
+        }
+
         images.push( r );
     }
 
@@ -200,7 +231,7 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitBoolValue(imgLangParser.BoolValueContext ctx) {
         super.enterBoolValue(ctx);
-        boolArgs.push( new Boolean( ctx.BOOL().getText().substring(1) ) );
+        boolArgs.push( ctx.BOOL().getText().equals("#true") );
     }
 
     private FilterableImage getResult() {
@@ -246,10 +277,7 @@ public class Interpreter extends imgLangBaseListener {
 
     static private boolean isImage(File file) {
         try {
-            if((Files.probeContentType(file.toPath()).split("/")[0]).equals("image"))
-                return true;
-            else
-                return false;
+            return (Files.probeContentType(file.toPath()).split("/")[0]).equals("image");
         } catch (IOException e) {
             return false;
         }

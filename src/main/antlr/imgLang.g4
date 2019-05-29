@@ -37,7 +37,7 @@ operation
     | 'sobel' '(' image ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
     | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
     | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
-    | 'grayScale' '(' image ')'                                                        #GrayScale
+    | 'grayScale' '(' image (',' floatValue ',' floatValue ',' floatValue )? ')'                                                        #GrayScale
     | 'redist' '(' image ',' floatValue ')'                                            #Redist
     | 'translucent' '(' image ')'                                                      #Translucent
     ;
