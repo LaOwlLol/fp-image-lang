@@ -8,6 +8,7 @@ script
 line
     : assignment
     | expression
+    | write
     ;
 
 assignment
@@ -37,9 +38,13 @@ operation
     | 'sobel' '(' image ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
     | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
     | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
-    | 'grayScale' '(' image (',' floatValue ',' floatValue ',' floatValue )? ')'                                                        #GrayScale
+    | 'grayScale' '(' image (',' floatValue ',' floatValue ',' floatValue )? ')'       #GrayScale
     | 'redist' '(' image ',' floatValue ')'                                            #Redist
     | 'translucent' '(' image ')'                                                      #Translucent
+    ;
+
+write
+    : path '<<' image
     ;
 
 intValue

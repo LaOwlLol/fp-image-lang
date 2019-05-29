@@ -30,6 +30,8 @@ public class Interpreter extends imgLangBaseListener {
     private Stack<Float> floatArgs;
     private Stack<Boolean> boolArgs;
     private HashMap<String, FilterableImage> vars;
+    boolean inWrite;
+    private File outputFile;
 
     public Interpreter() {
         images = new Stack<>();
@@ -37,6 +39,7 @@ public class Interpreter extends imgLangBaseListener {
         floatArgs = new Stack<>();
         boolArgs = new Stack<>();
         vars = new HashMap<>();
+        inWrite = false;
     }
 
     public FilterableImage interp(String script) {
@@ -63,7 +66,7 @@ public class Interpreter extends imgLangBaseListener {
         super.exitCanny(ctx);
         Float f1 = floatArgs.pop();
         Float f2 = floatArgs.pop();
-        FilterableImage r = new FilterableImage(images.pop().getImage());
+        FilterableImage r = images.pop();
         r.applyFilter(new CannyFilter(f1, f2));
         images.push( r );
     }
@@ -72,7 +75,7 @@ public class Interpreter extends imgLangBaseListener {
     public void exitSobel(imgLangParser.SobelContext ctx) {
         super.exitSobel(ctx);
         Float f1 = floatArgs.pop();
-        FilterableImage r = new FilterableImage(images.pop().getImage());
+        FilterableImage r = images.pop();
         boolean both = false;
         Boolean b1;
         Boolean b2;
@@ -108,7 +111,7 @@ public class Interpreter extends imgLangBaseListener {
         Integer g = intArgs.pop();
         Integer b = intArgs.pop();
         Float t = floatArgs.pop();
-        FilterableImage re = new FilterableImage(images.pop().getImage());
+        FilterableImage re = images.pop();
         re.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), t));
         images.push( re );
     }
@@ -119,7 +122,7 @@ public class Interpreter extends imgLangBaseListener {
 
         Integer s = intArgs.pop();
         Float f = floatArgs.pop();
-        FilterableImage r = new FilterableImage(images.pop().getImage());
+        FilterableImage r = images.pop();
         r.applyFilter(new GaussianBlur(s, f));
         images.push( r );
     }
@@ -127,7 +130,7 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitGrayScale(imgLangParser.GrayScaleContext ctx) {
         super.exitGrayScale(ctx);
-        FilterableImage r = new FilterableImage(images.pop().getImage());
+        FilterableImage r = images.pop();
 
         if (!floatArgs.empty()) {
             float bl = floatArgs.pop();
@@ -146,7 +149,7 @@ public class Interpreter extends imgLangBaseListener {
     public void exitRedist(imgLangParser.RedistContext ctx) {
         super.exitRedist(ctx);
         Float f = floatArgs.pop();
-        FilterableImage r = new FilterableImage(images.pop().getImage());
+        FilterableImage r = images.pop();
         r.applyFilter(new RedistributionFilter(f));
         images.push( r );
     }
@@ -154,9 +157,27 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitTranslucent(imgLangParser.TranslucentContext ctx) {
         super.exitTranslucent(ctx);
-        FilterableImage r = new FilterableImage(images.pop().getImage());
+        FilterableImage r = images.pop();
         r.applyFilter(new TranslucentFilter());
         images.push( r );
+    }
+
+    @Override
+    public void enterWrite(imgLangParser.WriteContext ctx) {
+        super.enterWrite(ctx);
+        inWrite = true;
+    }
+
+    @Override
+    public void exitWrite(imgLangParser.WriteContext ctx) {
+        super.exitWrite(ctx);
+        FilterableImage i = images.pop();
+
+        try {
+            writeImageToFile(i.getImage() , outputFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -207,6 +228,12 @@ public class Interpreter extends imgLangBaseListener {
     @Override
     public void exitPath(imgLangParser.PathContext ctx) {
         super.exitPath(ctx);
+        if (inWrite) {
+
+            outputFile = new File(ctx.PATH_LITERAL().getText());
+            //outputFile.mkdirs();
+            inWrite = false;
+        }
         try {
             images.push(getImageLiteral(ctx.PATH_LITERAL().getText()));
         } catch (IOException e) {
