@@ -234,12 +234,14 @@ public class Interpreter extends imgLangBaseListener {
             //outputFile.mkdirs();
             inWrite = false;
         }
-        try {
-            images.push(getImageLiteral(ctx.PATH_LITERAL().getText()));
-        } catch (IOException e) {
-            //System.err.print("Line: "+ );
-            System.err.println("Unknown image file: "+ ctx.PATH_LITERAL().getText());
-            //e.printStackTrace();
+        else {
+            try {
+                images.push(getImageLiteral(ctx.PATH_LITERAL().getText()));
+            } catch (IOException e) {
+                //System.err.print("Line: "+ );
+                System.err.println("Unknown image file: " + ctx.PATH_LITERAL().getText());
+                //e.printStackTrace();
+            }
         }
     }
 

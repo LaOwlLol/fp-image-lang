@@ -5,10 +5,19 @@ script
     : NEWLINE* line ( NEWLINE+ line )* NEWLINE*
     ;
 
+body
+    : NEWLINE* '{' NEWLINE* line ( NEWLINE+ line )* NEWLINE* '}' NEWLINE*
+    ;
+
 line
     : assignment
     | expression
     | write
+    | foreach
+    ;
+
+foreach
+    : 'for' id 'in' dir body
     ;
 
 assignment
@@ -44,7 +53,7 @@ operation
     ;
 
 write
-    : path '<<' image
+    : path '<<' expression
     ;
 
 intValue
@@ -67,6 +76,10 @@ path
     : PATH_LITERAL
     ;
 
+dir
+    : DIR_LITERAL
+    ;
+
 ID
     : ID_LETTER (ID_LETTER | DIGIT)*
     ;
@@ -79,6 +92,10 @@ fragment ID_LETTER
 
 PATH_LITERAL
     : VALID_PATH_START (VALID_PATH_CHAR | DIGIT)* IMAGE_EXTENSION
+    ;
+
+DIR_LITERAL
+    : VALID_PATH_START (VALID_PATH_CHAR | DIGIT)* DIV
     ;
 
 fragment VALID_PATH_START
