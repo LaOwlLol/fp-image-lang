@@ -5,9 +5,19 @@ script
     : NEWLINE* line ( NEWLINE+ line )* NEWLINE*
     ;
 
+body
+    : NEWLINE* '{' NEWLINE* line ( NEWLINE+ line )* NEWLINE* '}' NEWLINE*
+    ;
+
 line
     : assignment
     | expression
+    | write
+    | foreach
+    ;
+
+foreach
+    : 'for' id 'in' dir body
     ;
 
 assignment
@@ -34,12 +44,16 @@ image
 
 operation
     : 'canny' '(' image ',' floatValue ',' floatValue ')'                              #Canny
-    | 'sobel' '(' image ',' floatValue ')'                                             #Sobel
+    | 'sobel' '(' image ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
     | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
     | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
-    | 'grayScale' '(' image ')'                                                        #GrayScale
+    | 'grayScale' '(' image (',' floatValue ',' floatValue ',' floatValue )? ')'       #GrayScale
     | 'redist' '(' image ',' floatValue ')'                                            #Redist
     | 'translucent' '(' image ')'                                                      #Translucent
+    ;
+
+write
+    : path '<<' expression
     ;
 
 intValue
@@ -50,12 +64,20 @@ floatValue
     : FLOAT
     ;
 
+boolValue
+    : BOOL
+    ;
+
 id
     : ID
     ;
 
 path
     : PATH_LITERAL
+    ;
+
+dir
+    : DIR_LITERAL
     ;
 
 ID
@@ -70,6 +92,10 @@ fragment ID_LETTER
 
 PATH_LITERAL
     : VALID_PATH_START (VALID_PATH_CHAR | DIGIT)* IMAGE_EXTENSION
+    ;
+
+DIR_LITERAL
+    : VALID_PATH_START (VALID_PATH_CHAR | DIGIT)* DIV
     ;
 
 fragment VALID_PATH_START
@@ -112,6 +138,18 @@ FLOAT
     | '.' DIGIT+
     ;
 
+fragment TRUELITERAL
+    : 'true'
+    ;
+
+fragment FALSELITERAL
+    : 'false'
+    ;
+
+BOOL
+    : '#'(TRUELITERAL|FALSELITERAL)
+    ;
+
 NEWLINE
     : '\r\n'
     | 'r'
@@ -139,7 +177,7 @@ MINUS
     ;
 
 COMMENT
-    : '#' ~[\r\n]* ->skip
+    : ';' ~[\r\n]* ->skip
     ;
 
 WS
