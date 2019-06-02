@@ -18,27 +18,35 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 
 import java.util.Stack;
+import java.util.stream.Stream;
 
 public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
     private FilterableImage last;
-    //private Stack<FilterableImage> images;
     private Stack<Integer> intArgs;
     private Stack<Float> floatArgs;
     private Stack<Boolean> boolArgs;
+    private Stack<Integer> loopIter;
     private HashMap<String, FilterableImage> vars;
-    boolean inWrite;
     private File outputFile;
+    private boolean inWrite;
+    private boolean looping;
+
 
     public Interpreter() {
         intArgs = new Stack<>();
         floatArgs = new Stack<>();
         boolArgs = new Stack<>();
+        loopIter = new Stack<>();
         vars = new HashMap<>();
         inWrite = false;
+        looping = false;
     }
 
     public FilterableImage interp(String script) {
@@ -48,6 +56,52 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         ParseTree tree = imgParser.script();
 
         return this.visit(tree);
+    }
+
+    @Override
+    public FilterableImage visitForeach(imgLangParser.ForeachContext ctx) {
+
+        //check the id given.
+        if (vars.containsKey(ctx.id().ID().getText())) {
+            System.err.println("Foreach ID: "+ctx.id().ID().getText() +
+                    "\n ID is already a variable name. Skipping for each...");
+            return new FilterableImage(1,1);
+        }
+
+        //check directory
+        Path p = Paths.get(ctx.dir().DIR_LITERAL().getText());
+        if (!isExistingDirectory(p)) {
+            //error
+            System.err.println("Foreach in DIR: "+ctx.dir().DIR_LITERAL().getText() +
+                    "\n DIR is not an existing directory.  Skipping foreach...");
+            return new FilterableImage(1, 1);
+        }
+
+        looping = true;
+        loopIter.push(0);
+        try (Stream<Path> list = Files.list(p) ) {
+            list.filter( dirItem -> isImage(dirItem.toFile()) ).forEach( imagePath -> {
+                try {
+                    FilterableImage image = getImageLiteral(imagePath.toFile());
+                    vars.put(ctx.id().ID().getText(), image);
+
+
+                    visit(ctx.body());
+                    loopIter.push(loopIter.pop() + 1 );
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } );
+        }
+        catch (IOException e) {
+
+        }
+        loopIter.pop();
+        looping = false;
+
+        return vars.remove(ctx.id().ID().getText());
     }
 
     @Override
@@ -184,7 +238,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     public FilterableImage visitMinus(imgLangParser.MinusContext ctx) {
 
         BlendFilter f = new BlendFilter();
-        return new FilterableImage(f.apply( visit(ctx.expression()).getImage(), visit(ctx.expression()).getImage() ));
+        return new FilterableImage(f.apply( visit(ctx.expression()).getImage(), visit(ctx.term()).getImage() ));
     }
 
     @Override
@@ -212,11 +266,20 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
     @Override
     public FilterableImage visitPath(imgLangParser.PathContext ctx) {
-        super.visitPath(ctx);
+
         if (inWrite) {
 
-            outputFile = new File(ctx.PATH_LITERAL().getText());
-            //outputFile.mkdirs();
+            //super hack for iterating.
+            if (looping) {
+                int extBegin = ctx.PATH_LITERAL().getText().lastIndexOf('.');
+                String body = ctx.PATH_LITERAL().getText().substring(0, extBegin);
+                String ext = ctx.PATH_LITERAL().getText().substring(extBegin);
+                outputFile = new File( body + "_"+loopIter.peek() + ext );
+            }
+            else {
+                outputFile = new File(ctx.PATH_LITERAL().getText());
+            }
+
             inWrite = false;
 
             return null;
@@ -263,6 +326,15 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     private FilterableImage getImageLiteral(String path) throws IOException {
 
         File file = new File(path);
+        try {
+            return getImageLiteral(file);
+        }
+        catch (IOException e) {
+            throw e;
+        }
+    }
+
+    private FilterableImage getImageLiteral(File file) throws IOException {
         if (file.isFile()) {
             if (isImage(file)) {
                 return new FilterableImage(new Image(file.toURI().toString()));
@@ -270,7 +342,6 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         }
 
         throw new IOException();
-
     }
 
     private void writeImageToFile(Image img, File file) throws IOException {
@@ -289,6 +360,10 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    static private boolean isExistingDirectory(Path dir) {
+        return Files.exists(dir) && Files.isDirectory(dir);
     }
 
 }
