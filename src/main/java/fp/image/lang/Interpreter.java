@@ -2,7 +2,7 @@ package fp.image.lang;
 
 import fauxpas.entities.FilterableImage;
 import fauxpas.filters.*;
-import fp.image.lang.parse.imgLangBaseListener;
+import fp.image.lang.parse.imgLangBaseVisitor;
 import fp.image.lang.parse.imgLangLexer;
 import fp.image.lang.parse.imgLangParser;
 import javafx.embed.swing.SwingFXUtils;
@@ -22,10 +22,10 @@ import java.util.HashMap;
 
 import java.util.Stack;
 
-public class Interpreter extends imgLangBaseListener {
+public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
     private FilterableImage last;
-    private Stack<FilterableImage> images;
+    //private Stack<FilterableImage> images;
     private Stack<Integer> intArgs;
     private Stack<Float> floatArgs;
     private Stack<Boolean> boolArgs;
@@ -34,7 +34,6 @@ public class Interpreter extends imgLangBaseListener {
     private File outputFile;
 
     public Interpreter() {
-        images = new Stack<>();
         intArgs = new Stack<>();
         floatArgs = new Stack<>();
         boolArgs = new Stack<>();
@@ -48,91 +47,92 @@ public class Interpreter extends imgLangBaseListener {
         imgLangParser imgParser = new imgLangParser(tokens);
         ParseTree tree = imgParser.script();
 
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(this, tree);
-
-        return getResult();
+        return this.visit(tree);
     }
 
     @Override
-    public void exitAssignment(imgLangParser.AssignmentContext ctx) {
-        super.exitAssignment(ctx);
-        last = images.pop();
-        vars.put(ctx.id().ID().getText(), last);
-    }
+    public FilterableImage visitCanny(imgLangParser.CannyContext ctx) {
 
-    @Override
-    public void exitCanny(imgLangParser.CannyContext ctx) {
-        super.exitCanny(ctx);
+        visit(ctx.floatValue(0));
         Float f1 = floatArgs.pop();
+        visit(ctx.floatValue(1));
         Float f2 = floatArgs.pop();
-        FilterableImage r = images.pop();
+        FilterableImage r = visit(ctx.image());
         r.applyFilter(new CannyFilter(f1, f2));
-        images.push( r );
+        return r;
     }
 
     @Override
-    public void exitSobel(imgLangParser.SobelContext ctx) {
-        super.exitSobel(ctx);
-        Float f1 = floatArgs.pop();
-        FilterableImage r = images.pop();
-        boolean both = false;
-        Boolean b1;
-        Boolean b2;
-        if (boolArgs.empty()) {
-            b1 = false;
-            b2 = false;
-        }
-        else {
-            b1 = boolArgs.pop();
-            if (boolArgs.empty()) {
-                b2 = false;
-            }
-            else {
-                b2 = boolArgs.pop();
-                both = true;
-            }
-        }
+    public FilterableImage visitSobel(imgLangParser.SobelContext ctx) {
 
-        if (both) {
-            r.applyFilter(new SobelFilter(f1, b2, b1));
-        }
-        else {
+
+        visit(ctx.floatValue());
+        Float f1 = floatArgs.pop();
+        FilterableImage r = visit(ctx.image());
+
+
+        if (ctx.boolValue().size() == 1) {
+            visit(ctx.boolValue(0));
+            boolean b1 = boolArgs.pop();
+
             r.applyFilter(new SobelFilter(f1, b1));
         }
-        images.push( r );
+        else if (ctx.boolValue().size() > 1) {
+            visit(ctx.boolValue(0));
+            boolean b1 = boolArgs.pop();
+
+            visit(ctx.boolValue(1));
+            boolean b2 = boolArgs.pop();
+
+            r.applyFilter(new SobelFilter(f1, b1, b2));
+        }
+        else {
+            r.applyFilter(new SobelFilter(f1));
+        }
+
+        return  r;
     }
 
     @Override
-    public void exitChromaKey(imgLangParser.ChromaKeyContext ctx) {
-        super.exitChromaKey(ctx);
+    public FilterableImage visitChromaKey(imgLangParser.ChromaKeyContext ctx) {
 
+        visit( ctx.intValue(0) );
         Integer r = intArgs.pop();
+        visit( ctx.intValue(1) );
         Integer g = intArgs.pop();
+        visit( ctx.intValue(2) );
         Integer b = intArgs.pop();
+        visit( ctx.floatValue() );
         Float t = floatArgs.pop();
-        FilterableImage re = images.pop();
+
+        FilterableImage re = visit(ctx.image());
         re.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), t));
-        images.push( re );
+        return re;
     }
 
     @Override
-    public void exitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
-        super.exitGaussianBlur(ctx);
+    public FilterableImage visitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
 
+        visit(ctx.intValue());
         Integer s = intArgs.pop();
+        visit(ctx.floatValue());
         Float f = floatArgs.pop();
-        FilterableImage r = images.pop();
+        FilterableImage r = visit(ctx.image());
         r.applyFilter(new GaussianBlur(s, f));
-        images.push( r );
+        return r;
     }
 
     @Override
-    public void exitGrayScale(imgLangParser.GrayScaleContext ctx) {
-        super.exitGrayScale(ctx);
-        FilterableImage r = images.pop();
+    public FilterableImage visitGrayScale(imgLangParser.GrayScaleContext ctx) {
 
-        if (!floatArgs.empty()) {
+        FilterableImage r = visit(ctx.image());
+
+        if (ctx.floatValue().size() > 0) {
+
+            visit(ctx.floatValue(0));
+            visit(ctx.floatValue(1));
+            visit(ctx.floatValue(2));
+
             float bl = floatArgs.pop();
             float gn = floatArgs.pop();
             float rd = floatArgs.pop();
@@ -142,143 +142,122 @@ public class Interpreter extends imgLangBaseListener {
             r.applyFilter(new GrayscaleFilter());
         }
 
-        images.push( r );
+        return r;
     }
 
     @Override
-    public void exitRedist(imgLangParser.RedistContext ctx) {
-        super.exitRedist(ctx);
+    public FilterableImage visitRedist(imgLangParser.RedistContext ctx) {
+
+        visit(ctx.floatValue());
         Float f = floatArgs.pop();
-        FilterableImage r = images.pop();
+        FilterableImage r = visit(ctx.image());
         r.applyFilter(new RedistributionFilter(f));
-        images.push( r );
+        return r;
     }
 
     @Override
-    public void exitTranslucent(imgLangParser.TranslucentContext ctx) {
-        super.exitTranslucent(ctx);
-        FilterableImage r = images.pop();
+    public FilterableImage visitTranslucent(imgLangParser.TranslucentContext ctx) {
+
+        FilterableImage r = visit(ctx.image());
         r.applyFilter(new TranslucentFilter());
-        images.push( r );
+        return r;
+
     }
 
     @Override
-    public void enterWrite(imgLangParser.WriteContext ctx) {
-        super.enterWrite(ctx);
+    public FilterableImage visitWrite(imgLangParser.WriteContext ctx) {
+
         inWrite = true;
-    }
-
-    @Override
-    public void exitWrite(imgLangParser.WriteContext ctx) {
-        super.exitWrite(ctx);
-        FilterableImage i = images.pop();
-
+        visit(ctx.path());
+        FilterableImage r = visit(ctx.expression());
         try {
-            writeImageToFile(i.getImage() , outputFile);
+            writeImageToFile( r.getImage() , outputFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to write image: " + ctx.expression().toString());
+            System.err.println("\t reason: " + e.getMessage());
         }
+
+        return r;
     }
 
     @Override
-    public void exitMinus(imgLangParser.MinusContext ctx) {
-        super.exitMinus(ctx);
+    public FilterableImage visitMinus(imgLangParser.MinusContext ctx) {
 
-        Image i1 = images.pop().getImage();
-        Image i2 = images.pop().getImage();
         BlendFilter f = new BlendFilter();
-        FilterableImage r = new FilterableImage(f.apply( i2, i1 ));
-        images.push( r );
+        return new FilterableImage(f.apply( visit(ctx.expression()).getImage(), visit(ctx.expression()).getImage() ));
     }
 
     @Override
-    public void exitPlus(imgLangParser.PlusContext ctx) {
-        super.exitPlus(ctx);
+    public FilterableImage visitPlus(imgLangParser.PlusContext ctx) {
 
-        Image i1 = images.pop().getImage();
-        Image i2 = images.pop().getImage();
         SumFilter f = new SumFilter();
-        FilterableImage r = new FilterableImage(f.apply( i2, i1 ));
-        images.push( r );
+        return new FilterableImage(f.apply( visit(ctx.expression()).getImage() , visit(ctx.term()).getImage() ));
     }
 
     @Override
-    public void exitMult(imgLangParser.MultContext ctx) {
-        super.exitMult(ctx);
+    public FilterableImage visitMult(imgLangParser.MultContext ctx) {
 
-        Image i1 = images.pop().getImage();
-        Image i2 = images.pop().getImage();
         ReflectionFilter f = new ReflectionFilter();
-        FilterableImage r = new FilterableImage(f.apply( i2, i1 ));
-        images.push( r );
+        return new FilterableImage(f.apply( visit( ctx.term() ).getImage(), visit(ctx.image()).getImage() ));
     }
 
     @Override
-    public void exitVar(imgLangParser.VarContext ctx) {
-        super.exitVar(ctx);
-        try {
-            images.push(getImageVariable(ctx.id().ID().getText()));
-        } catch (NoSuchFieldException e) {
-            //System.err.print("Line: "+ );
-            System.err.println("Unknown image variable: "+ ctx.id().ID().getText());
-            //e.printStackTrace();
-        }
+    public FilterableImage visitAssignment(imgLangParser.AssignmentContext ctx) {
+
+        FilterableImage r = visit(ctx.expression());
+        vars.put(ctx.id().ID().getText(), r);
+        last = r;
+        return r;
     }
 
     @Override
-    public void exitPath(imgLangParser.PathContext ctx) {
-        super.exitPath(ctx);
+    public FilterableImage visitPath(imgLangParser.PathContext ctx) {
+        super.visitPath(ctx);
         if (inWrite) {
 
             outputFile = new File(ctx.PATH_LITERAL().getText());
             //outputFile.mkdirs();
             inWrite = false;
+
+            return null;
         }
         else {
             try {
-                images.push(getImageLiteral(ctx.PATH_LITERAL().getText()));
+                return getImageLiteral(ctx.PATH_LITERAL().getText());
             } catch (IOException e) {
                 //System.err.print("Line: "+ );
                 System.err.println("Unknown image file: " + ctx.PATH_LITERAL().getText());
                 //e.printStackTrace();
+                //TODO how to actually handle errors.
+                return new FilterableImage( 0,0 );
             }
         }
     }
 
     @Override
-    public void exitIntValue(imgLangParser.IntValueContext ctx) {
-        super.exitIntValue(ctx);
+    public FilterableImage visitIntValue(imgLangParser.IntValueContext ctx) {
+        super.visitIntValue(ctx);
         intArgs.push(Integer.parseInt( ctx.INT().getText() ) );
+        return null;
     }
 
     @Override
-    public void exitFloatValue(imgLangParser.FloatValueContext ctx) {
-        super.exitFloatValue(ctx);
+    public FilterableImage visitFloatValue(imgLangParser.FloatValueContext ctx) {
+        super.visitFloatValue(ctx);
         floatArgs.push( Float.parseFloat( ctx.FLOAT().getText() ) );
+        return null;
     }
 
     @Override
-    public void exitBoolValue(imgLangParser.BoolValueContext ctx) {
-        super.enterBoolValue(ctx);
+    public FilterableImage visitBoolValue(imgLangParser.BoolValueContext ctx) {
+        super.visitBoolValue(ctx);
         boolArgs.push( ctx.BOOL().getText().equals("#true") );
+        return null;
     }
 
-    private FilterableImage getResult() {
-        if (images.empty()) {
-            return last;
-        }
-        else {
-            return images.pop();
-        }
-    }
-
-    private FilterableImage getImageVariable(String id) throws NoSuchFieldException {
-
-        if (vars.containsKey(id)) {
-            return vars.get(id);
-        }
-
-        throw new NoSuchFieldException();
+    @Override
+    public FilterableImage visitVar(imgLangParser.VarContext ctx) {
+        return vars.get(ctx.id().ID().getText());
     }
 
     private FilterableImage getImageLiteral(String path) throws IOException {
