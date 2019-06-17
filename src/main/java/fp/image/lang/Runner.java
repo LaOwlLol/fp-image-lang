@@ -27,7 +27,6 @@ import java.time.Instant;
 public class Runner extends Application {
 
     private Instant start;
-    private Instant end;
     private File script_file;
 
     public Runner() {

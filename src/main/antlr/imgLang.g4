@@ -43,13 +43,13 @@ image
     ;
 
 operation
-    : 'canny' '(' image ',' floatValue ',' floatValue ')'                              #Canny
-    | 'sobel' '(' image ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
-    | 'chromaKey' '(' image ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
-    | 'gaussianBlur' '(' image ',' intValue ',' floatValue ')'                         #GaussianBlur
-    | 'grayScale' '(' image (',' floatValue ',' floatValue ',' floatValue )? ')'       #GrayScale
-    | 'redist' '(' image ',' floatValue ')'                                            #Redist
-    | 'translucent' '(' image ')'                                                      #Translucent
+    : 'canny' '(' expression ',' floatValue ',' floatValue ')'                              #Canny
+    | 'sobel' '(' expression ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
+    | 'chromaKey' '(' expression ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
+    | 'gaussianBlur' '(' expression ',' intValue ',' floatValue ')'                         #GaussianBlur
+    | 'grayScale' '(' expression (',' floatValue ',' floatValue ',' floatValue )? ')'       #GrayScale
+    | 'redist' '(' expression ',' floatValue ')'                                            #Redist
+    | 'translucent' '(' expression ')'                                                      #Translucent
     ;
 
 write

@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
-    private FilterableImage last;
     private Stack<Integer> intArgs;
     private Stack<Float> floatArgs;
     private Stack<Boolean> boolArgs;
@@ -77,7 +76,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
         looping = true;
         loopIter.push(0);
-        try (Stream<Path> list = Files.list(p) ) {
+        try (Stream<Path> list = Files.list(p).sorted() ) {
             list.filter( dirItem -> isImage(dirItem.toFile()) ).forEach( imagePath -> {
                 try {
                     FilterableImage image = getImageLiteral(imagePath.toFile());
@@ -109,7 +108,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         Float f1 = floatArgs.pop();
         visit(ctx.floatValue(1));
         Float f2 = floatArgs.pop();
-        FilterableImage r = visit(ctx.image());
+        FilterableImage r = visit(ctx.expression());
         r.applyFilter(new CannyFilter(f1, f2));
         return r;
     }
@@ -117,11 +116,9 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitSobel(imgLangParser.SobelContext ctx) {
 
-
         visit(ctx.floatValue());
         Float f1 = floatArgs.pop();
-        FilterableImage r = visit(ctx.image());
-
+        FilterableImage r = visit(ctx.expression());
 
         if (ctx.boolValue().size() == 1) {
             visit(ctx.boolValue(0));
@@ -157,7 +154,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         visit( ctx.floatValue() );
         Float t = floatArgs.pop();
 
-        FilterableImage re = visit(ctx.image());
+        FilterableImage re = visit(ctx.expression());
         re.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), t));
         return re;
     }
@@ -169,7 +166,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         Integer s = intArgs.pop();
         visit(ctx.floatValue());
         Float f = floatArgs.pop();
-        FilterableImage r = visit(ctx.image());
+        FilterableImage r = visit(ctx.expression());
         r.applyFilter(new GaussianBlur(s, f));
         return r;
     }
@@ -177,7 +174,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitGrayScale(imgLangParser.GrayScaleContext ctx) {
 
-        FilterableImage r = visit(ctx.image());
+        FilterableImage r = visit(ctx.expression());
 
         if (ctx.floatValue().size() > 0) {
 
@@ -202,7 +199,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
         visit(ctx.floatValue());
         Float f = floatArgs.pop();
-        FilterableImage r = visit(ctx.image());
+        FilterableImage r = visit(ctx.expression());
         r.applyFilter(new RedistributionFilter(f));
         return r;
     }
@@ -210,7 +207,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitTranslucent(imgLangParser.TranslucentContext ctx) {
 
-        FilterableImage r = visit(ctx.image());
+        FilterableImage r = visit(ctx.expression());
         r.applyFilter(new TranslucentFilter());
         return r;
 
@@ -258,7 +255,6 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
         FilterableImage r = visit(ctx.expression());
         vars.put(ctx.id().ID().getText(), r);
-        last = r;
         return r;
     }
 

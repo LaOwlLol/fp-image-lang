@@ -12,7 +12,7 @@ plugins {
     id 'antlr'
 }
 
-version = '0.2.1'
+version = '0.2.2'
 
 repositories {
     // Use jcenter for resolving your dependencies.
@@ -54,12 +54,12 @@ jar {
 
     manifest {
         attributes(
-                'Built-By': System.getProperty('user.name'),
-                'Built-Date': new Date(),
-                'Built-JDK': System.getProperty('java.version'),
-                'Built-Gradle': gradle.gradleVersion,
-                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'fp.image.lang.Runner'
+            'Built-By': System.getProperty('user.name'),
+            'Built-Date': new Date(),
+            'Built-JDK': System.getProperty('java.version'),
+            'Built-Gradle': gradle.gradleVersion,
+            'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+            'Main-Class': 'fp.image.lang.Runner'
         )
     }
 
