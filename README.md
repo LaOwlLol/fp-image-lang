@@ -1,4 +1,4 @@
-# fp-image-lang v0.2.1
+# fp-image-lang v0.3.0
 
 A language and interpreter for the fp-image api.
 
@@ -70,7 +70,7 @@ i = img1 * img2                                     //Reflect color values by co
 // Operation method calls.
 sobel( image , float (, bool (, bool)? )? )         //Edge Detection.  Args: target, threshold, preserveSaturation, manhattanDistance
 canny( image , float , float  )                     //Edge Detection. Args: target, lowerthreshold, upperthreshold
-chromaKey( image , int , int , int, float )         //Filter specific color to transparency. Args: target, red, green, blue, deltaThreshold  
+chromaKey( image , int , int , int, float (',' ( ( intValue ',' intValue ',' intValue ) | expression ) )?  )         //Filter specific color to transparency. Args: target, red, green, blue, deltaThreshold  optional: replacement color or source image)
 gaussianBlur( image , int , float )                 //Blur. Args: target, convolutionSize, standardDeviation
 grayScale( image (, int, int, int )? )              //Gray scale Args: target, red, green, blue.
 redist( image , float )                             //Redistrubute color values (like dodge/burn) Args: target, power

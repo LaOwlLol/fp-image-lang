@@ -45,7 +45,7 @@ image
 operation
     : 'canny' '(' expression ',' floatValue ',' floatValue ')'                              #Canny
     | 'sobel' '(' expression ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
-    | 'chromaKey' '(' expression ',' intValue ',' intValue ',' intValue ',' floatValue ')'  #ChromaKey
+    | 'chromaKey' '(' expression ',' intValue ',' intValue ',' intValue ',' floatValue (',' ( ( intValue ',' intValue ',' intValue ) | expression ) )? ')'  #ChromaKey
     | 'gaussianBlur' '(' expression ',' intValue ',' floatValue ')'                         #GaussianBlur
     | 'grayScale' '(' expression (',' floatValue ',' floatValue ',' floatValue )? ')'       #GrayScale
     | 'redist' '(' expression ',' floatValue ')'                                            #Redist
