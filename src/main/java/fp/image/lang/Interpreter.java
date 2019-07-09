@@ -98,8 +98,8 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitCanny(imgLangParser.CannyContext ctx) {
 
-        Float f1 = Float.parseFloat( ctx.floatValue(0).FLOAT().getText() );
-        Float f2 = Float.parseFloat( ctx.floatValue(1).FLOAT().getText() );
+        float f1 = parseFloatCtx( ctx.floatValue(0) );
+        float f2 = parseFloatCtx( ctx.floatValue(1) );
         FilterableImage r = visit(ctx.expression());
         r.applyFilter(new CannyFilter(f1, f2));
         return r;
@@ -109,21 +109,21 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     public FilterableImage visitSobel(imgLangParser.SobelContext ctx) {
 
 
-        Float f1 = Float.parseFloat( ctx.floatValue().FLOAT().getText() );
+        float f1 = parseFloatCtx( ctx.floatValue());
         FilterableImage r = visit(ctx.expression());
 
         if (ctx.boolValue().size() == 1) {
 
-            boolean b1 = ctx.boolValue(0).BOOL().getText().equals("#true");
+            boolean b1 = parseBoolCtx( ctx.boolValue(0) );
 
             r.applyFilter(new SobelFilter(f1, b1));
         }
         else if (ctx.boolValue().size() > 1) {
             visit(ctx.boolValue(0));
-            boolean b1 = ctx.boolValue(0).BOOL().getText().equals("#true");
+            boolean b1 = parseBoolCtx( ctx.boolValue(0) );
 
             visit(ctx.boolValue(1));
-            boolean b2 = ctx.boolValue(1).BOOL().getText().equals("#true");
+            boolean b2 = parseBoolCtx( ctx.boolValue(1) );
 
             r.applyFilter(new SobelFilter(f1, b1, b2));
         }
@@ -137,10 +137,10 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitChromaKey(imgLangParser.ChromaKeyContext ctx) {
 
-        Integer r = Integer.parseInt( ctx.intValue(0).INT().getText() );
-        Integer g = Integer.parseInt( ctx.intValue(1).INT().getText() );
-        Integer b = Integer.parseInt( ctx.intValue(2).INT().getText() );
-        Float t = Float.parseFloat( ctx.floatValue().FLOAT().getText() );
+        int r = parseIntCtx( ctx.intValue(0) );
+        int g = parseIntCtx( ctx.intValue(1) );
+        int b = parseIntCtx( ctx.intValue(2) );
+        float t = parseFloatCtx( ctx.floatValue() );
 
         FilterableImage target = visit(ctx.expression(0));
 
@@ -148,9 +148,9 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
             target.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), visit(ctx.expression(1)).getImage(), t));
         }
         else if (ctx.intValue().size() > 3 ) {
-            Integer sr = Integer.parseInt( ctx.intValue(3).INT().getText() );
-            Integer sg = Integer.parseInt( ctx.intValue(4).INT().getText() );
-            Integer sb = Integer.parseInt( ctx.intValue(5).INT().getText() );
+            int sr = parseIntCtx( ctx.intValue(3) );
+            int sg = parseIntCtx( ctx.intValue(4) );
+            int sb = parseIntCtx( ctx.intValue(5) );
 
             target.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), Color.rgb(sr, sg, sb), t));
         }
@@ -165,8 +165,8 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     public FilterableImage visitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
 
 
-        Integer s = Integer.parseInt( ctx.intValue().INT().getText() );
-        Float f = Float.parseFloat( ctx.floatValue().FLOAT().getText() );
+        int s = parseIntCtx( ctx.intValue() );
+        float f = parseFloatCtx( ctx.floatValue() );
         FilterableImage r = visit(ctx.expression());
         r.applyFilter(new GaussianBlur(s, f));
         return r;
@@ -179,9 +179,9 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
         if (ctx.floatValue().size() > 0) {
 
-            float bl = Float.parseFloat( ctx.floatValue(0).FLOAT().getText() );
-            float gn = Float.parseFloat( ctx.floatValue(1).FLOAT().getText() );
-            float rd = Float.parseFloat( ctx.floatValue(2).FLOAT().getText() );
+            float bl = parseFloatCtx( ctx.floatValue(0) );
+            float gn = parseFloatCtx( ctx.floatValue(1) );
+            float rd = parseFloatCtx( ctx.floatValue(2) );
             r.applyFilter(new GrayscaleFilter(rd, gn, bl));
         }
         else {
@@ -194,7 +194,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitRedist(imgLangParser.RedistContext ctx) {
 
-        Float f = Float.parseFloat( ctx.floatValue().FLOAT().getText() );
+        float f = parseFloatCtx( ctx.floatValue() );
         FilterableImage r = visit(ctx.expression());
         r.applyFilter(new RedistributionFilter(f));
         return r;
@@ -293,14 +293,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     }
 
     private FilterableImage getImageLiteral(String path) throws IOException {
-
-        File file = new File(path);
-        try {
-            return getImageLiteral(file);
-        }
-        catch (IOException e) {
-            throw e;
-        }
+        return getImageLiteral(new File(path));
     }
 
     private FilterableImage getImageLiteral(File file) throws IOException {
@@ -316,11 +309,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     private void writeImageToFile(Image img, File file) throws IOException {
         String extension = FilenameUtils.getExtension(file.getPath());
 
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(img, null), extension, file);
-        } catch (IOException e) {
-            throw e;
-        }
+        ImageIO.write(SwingFXUtils.fromFXImage(img, null), extension, file);
     }
 
     static private boolean isImage(File file) {
@@ -335,4 +324,15 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         return Files.exists(dir) && Files.isDirectory(dir);
     }
 
+    private float parseFloatCtx(imgLangParser.FloatValueContext fctx) {
+        return Float.parseFloat(fctx.FLOAT().toString());
+    }
+
+    private int parseIntCtx(imgLangParser.IntValueContext ictx) {
+        return Integer.parseInt( ictx.INT().getText() );
+    }
+
+    private boolean parseBoolCtx(imgLangParser.BoolValueContext bctx) {
+        return bctx.BOOL().getText().equals("#true");
+    }
 }
