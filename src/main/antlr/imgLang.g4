@@ -14,14 +14,55 @@ line
     | expression
     | write
     | foreach
+    | conditional
     ;
 
 foreach
     : 'for' id 'in' dir body
     ;
 
+conditional
+    : 'if' comparison body ('else' body)?
+    ;
+
 assignment
     : id EQUAL expression
+    ;
+
+comparison
+    : imageComparison                           #ImageCompare
+    | boolComparison                            #BoolCompare
+    | imageComparison binary boolComparison     #ImageWithBoolCompare
+    ;
+
+boolComparison
+    : '(' boolComparison ')'                        #ParenBoolCompare
+    | '!' boolComparison                            #NotBoolCompare
+    | boolComparison comparator boolComparison      #DirectCompare
+    | boolComparison binary boolComparison          #Conjenction
+    | boolValue                                     #BoolLiteral
+    | intValue                                      #IntLiteral
+    | floatValue                                    #FloatLiteral
+    | systemValue                                   #SValue
+    ;
+
+imageComparison
+    : expression DEQ expression                     #ImagesEqual
+    | expression NEQ expression                     #ImagesNotEqual
+    ;
+
+comparator
+    : GT
+    | GE
+    | LT
+    | LE
+    | DEQ
+    | NEQ
+    ;
+
+binary
+    : AND
+    | OR
     ;
 
 expression
@@ -52,8 +93,13 @@ operation
     | 'translucent' '(' expression ')'                                                      #Translucent
     ;
 
+systemValue
+    : '#count'
+    | '#time'
+    ;
+
 write
-    : path '<<' expression
+    : path DLT expression
     ;
 
 intValue
@@ -174,6 +220,41 @@ PLUS
 
 MINUS
     : '-'
+    ;
+
+AND
+    : '&'
+    ;
+OR
+    : '|'
+    ;
+
+NEQ
+    : '!='
+    ;
+
+DEQ
+    : '=='
+    ;
+
+GT
+    : '>'
+    ;
+
+GE
+    : '>='
+    ;
+
+DLT
+    : '<<'
+    ;
+
+LT
+    : '<'
+    ;
+
+LE
+    : '<='
     ;
 
 COMMENT
