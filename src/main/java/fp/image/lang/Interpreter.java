@@ -292,11 +292,11 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         return vars.get(ctx.id().ID().getText());
     }
 
-    private FilterableImage getImageLiteral(String path) throws IOException {
+    static private FilterableImage getImageLiteral(String path) throws IOException {
         return getImageLiteral(new File(path));
     }
 
-    private FilterableImage getImageLiteral(File file) throws IOException {
+    static private FilterableImage getImageLiteral(File file) throws IOException {
         if (file.isFile()) {
             if (isImage(file)) {
                 return new FilterableImage(new Image(file.toURI().toString()));
@@ -306,7 +306,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         throw new IOException();
     }
 
-    private void writeImageToFile(Image img, File file) throws IOException {
+    static private void writeImageToFile(Image img, File file) throws IOException {
         String extension = FilenameUtils.getExtension(file.getPath());
 
         ImageIO.write(SwingFXUtils.fromFXImage(img, null), extension, file);
@@ -324,15 +324,15 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         return Files.exists(dir) && Files.isDirectory(dir);
     }
 
-    private float parseFloatCtx(imgLangParser.FloatValueContext fctx) {
+    static private float parseFloatCtx(imgLangParser.FloatValueContext fctx) {
         return Float.parseFloat(fctx.FLOAT().toString());
     }
 
-    private int parseIntCtx(imgLangParser.IntValueContext ictx) {
+    static private int parseIntCtx(imgLangParser.IntValueContext ictx) {
         return Integer.parseInt( ictx.INT().getText() );
     }
 
-    private boolean parseBoolCtx(imgLangParser.BoolValueContext bctx) {
+    static private boolean parseBoolCtx(imgLangParser.BoolValueContext bctx) {
         return bctx.BOOL().getText().equals("#true");
     }
 }
