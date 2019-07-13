@@ -135,6 +135,28 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     }
 
     @Override
+    public FilterableImage visitDiff(imgLangParser.DiffContext ctx) {
+        FilterableImage f = visit(ctx.expression(0));
+        FilterableImage s = visit(ctx.expression(1));
+        float threshold = parseFloatCtx(ctx.floatValue(0));
+        DifferenceFilter filter;
+        if (ctx.floatValue().size() > 6) {
+            filter = new DifferenceFilter(
+                new Color(parseFloatCtx(ctx.floatValue(1)), parseFloatCtx(ctx.floatValue(2)),
+                    parseFloatCtx(ctx.floatValue(3)), 1.0 ),
+                new Color(parseFloatCtx(ctx.floatValue(4)), parseFloatCtx(ctx.floatValue(5)),
+                    parseFloatCtx(ctx.floatValue(6)), 1.0),
+                threshold, parseBoolCtx(ctx.boolValue())
+            );
+        }
+        else {
+            filter = new DifferenceFilter(threshold, parseBoolCtx(ctx.boolValue()));
+        }
+
+        return new FilterableImage(filter.apply(f.getImage(), s.getImage()));
+    }
+
+    @Override
     public FilterableImage visitChromaKey(imgLangParser.ChromaKeyContext ctx) {
 
         int r = parseIntCtx( ctx.intValue(0) );
@@ -193,20 +215,31 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
     @Override
     public FilterableImage visitRedist(imgLangParser.RedistContext ctx) {
-
-        float f = parseFloatCtx( ctx.floatValue() );
         FilterableImage r = visit(ctx.expression());
-        r.applyFilter(new RedistributionFilter(f));
+        r.applyFilter(new RedistributionFilter(parseFloatCtx( ctx.floatValue() )));
         return r;
     }
 
     @Override
-    public FilterableImage visitTranslucent(imgLangParser.TranslucentContext ctx) {
+    public FilterableImage visitChromaLum(imgLangParser.ChromaLumContext ctx) {
 
         FilterableImage r = visit(ctx.expression());
-        r.applyFilter(new TranslucentFilter());
-        return r;
+        if (ctx.floatValue().size() == 3) {
+            r.applyFilter( new ChromaLuminanceFilter( new GrayscaleFilter(parseFloatCtx(ctx.floatValue(0)),
+                parseFloatCtx(ctx.floatValue(1)), parseFloatCtx(ctx.floatValue(2))) ) );
+        }
+        else {
+            r.applyFilter(new ChromaLuminanceFilter());
 
+        }
+        return r;
+    }
+
+    @Override
+    public FilterableImage visitTransparency(imgLangParser.TransparencyContext ctx) {
+        FilterableImage r = visit(ctx.expression());
+        r.applyFilter( new TransparencyFilter( parseFloatCtx(ctx.floatValue()) ) );
+        return r;
     }
 
     @Override
@@ -227,7 +260,6 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
     @Override
     public FilterableImage visitMinus(imgLangParser.MinusContext ctx) {
-
         CompositeFilter f = new CompositeFilter();
         return new FilterableImage(f.apply( visit(ctx.expression()).getImage(), visit(ctx.term()).getImage() ));
     }

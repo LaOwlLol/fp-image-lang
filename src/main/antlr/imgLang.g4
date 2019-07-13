@@ -45,11 +45,13 @@ image
 operation
     : 'canny' '(' expression ',' floatValue ',' floatValue ')'                              #Canny
     | 'sobel' '(' expression ',' floatValue (',' boolValue (',' boolValue )? )? ')'         #Sobel
-    | 'chromaKey' '(' expression ',' intValue ',' intValue ',' intValue ',' floatValue (',' ( ( intValue ',' intValue ',' intValue ) | expression ) )? ')'  #ChromaKey
+    | 'diff' '(' expression ',' expression ',' floatValue ',' boolValue ( ',' floatValue ',' floatValue ',' floatValue ',' floatValue ',' floatValue ',' floatValue )? ')'     #Diff
+    | 'chromaKey' '(' expression ',' intValue ',' intValue ',' intValue ',' floatValue (',' ( ( intValue ',' intValue ',' intValue ) | expression ) )? ')'          #ChromaKey
+    | 'chromaLum' '(' expression (',' floatValue ',' floatValue ',' floatValue )? ')'       #ChromaLum
     | 'gaussianBlur' '(' expression ',' intValue ',' floatValue ')'                         #GaussianBlur
     | 'grayScale' '(' expression (',' floatValue ',' floatValue ',' floatValue )? ')'       #GrayScale
     | 'redist' '(' expression ',' floatValue ')'                                            #Redist
-    | 'translucent' '(' expression ')'                                                      #Translucent
+    | 'transparency'  '(' expression ',' floatValue ')'                                     #Transparency
     ;
 
 write
