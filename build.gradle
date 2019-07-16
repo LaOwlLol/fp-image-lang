@@ -38,6 +38,22 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
+jar {
+    from configurations.runtime.collect { zipTree(it) }
+
+    manifest {
+        attributes(
+            'Built-By': System.getProperty('user.name'),
+            'Built-Date': new Date(),
+            'Built-JDK': System.getProperty('java.version'),
+            'Built-Gradle': gradle.gradleVersion,
+            'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+            'Main-Class': 'fp.image.lang.app.InteractiveTestRunner'
+        )
+    }
+
+}
+
 generateGrammarSource {
     maxHeapSize = "64m"
     arguments += [ '-visitor', '-package', 'fp.image.lang.parse']
@@ -49,21 +65,13 @@ clean {
     delete "src/main/java/fp/image/lang/parse"
 }
 
-jar {
-    from configurations.runtime.collect { zipTree(it) }
-
-    manifest {
-        attributes(
-            'Built-By': System.getProperty('user.name'),
-            'Built-Date': new Date(),
-            'Built-JDK': System.getProperty('java.version'),
-            'Built-Gradle': gradle.gradleVersion,
-            'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-            'Main-Class': 'fp.image.lang.Runner'
-        )
-    }
-
+run {
+    // Define the main class for the application
+    mainClassName = 'fp.image.lang.app.InteractiveTestRunner'
 }
 
-// Define the main class for the application
-mainClassName = 'fp.image.lang.Runner'
+task client(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = 'fp.image.lang.app.ClientRunner'
+    args "src/test/resources/lewisFly"
+}
