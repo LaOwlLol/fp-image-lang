@@ -1,19 +1,20 @@
 package fp.image.lang;
 
 import fauxpas.entities.FilterableImage;
+import fauxpas.entities.ImageHelper;
 import fauxpas.filters.*;
 import fp.image.lang.parse.imgLangBaseVisitor;
 import fp.image.lang.parse.imgLangLexer;
 import fp.image.lang.parse.imgLangParser;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -101,8 +102,17 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         float f1 = parseFloatCtx( ctx.floatValue(0) );
         float f2 = parseFloatCtx( ctx.floatValue(1) );
         FilterableImage r = visit(ctx.expression());
-        r.applyFilter(new CannyFilter(f1, f2));
+        r.setImage(ImageHelper.ARGBBufferRenderer(
+                new CannyFilter(f1, f2).apply(ImageHelper.BufferToPixelSample(r.getImage()),r.getImage()),
+                r.getImage().getWidth(),
+                r.getImage().getHeight()
+            )
+        );
         return r;
+    }
+
+    private BufferedImage applyMixer (Mixer m, BufferedImage r) {
+        return ImageHelper.ARGBBufferRenderer( m.apply( ImageHelper.BufferToPixelSample(r) , r ), r.getWidth(), r.getHeight() );
     }
 
     @Override
@@ -116,7 +126,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
             boolean b1 = parseBoolCtx( ctx.boolValue(0) );
 
-            r.applyFilter(new SobelFilter(f1, b1));
+            r.setImage(applyMixer(new SobelFilter(f1, b1), r.getImage()));
         }
         else if (ctx.boolValue().size() > 1) {
             visit(ctx.boolValue(0));
@@ -125,10 +135,10 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
             visit(ctx.boolValue(1));
             boolean b2 = parseBoolCtx( ctx.boolValue(1) );
 
-            r.applyFilter(new SobelFilter(f1, b1, b2));
+            r.setImage(applyMixer(new SobelFilter(f1, b1, b2), r.getImage()));
         }
         else {
-            r.applyFilter(new SobelFilter(f1));
+            r.setImage(applyMixer(new SobelFilter(f1), r.getImage()));
         }
 
         return  r;
@@ -138,14 +148,14 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     public FilterableImage visitDiff(imgLangParser.DiffContext ctx) {
         FilterableImage f = visit(ctx.expression(0));
         FilterableImage s = visit(ctx.expression(1));
-        float threshold = parseFloatCtx(ctx.floatValue(0));
+        float threshold = parseFloatCtx(ctx.floatValue());
         DifferenceFilter filter;
-        if (ctx.floatValue().size() > 6) {
+        if (ctx.intValue().size() > 7) {
             filter = new DifferenceFilter(
-                new Color(parseFloatCtx(ctx.floatValue(1)), parseFloatCtx(ctx.floatValue(2)),
-                    parseFloatCtx(ctx.floatValue(3)), 1.0 ),
-                new Color(parseFloatCtx(ctx.floatValue(4)), parseFloatCtx(ctx.floatValue(5)),
-                    parseFloatCtx(ctx.floatValue(6)), 1.0),
+                new Color(parseIntCtx(ctx.intValue(0)), parseIntCtx(ctx.intValue(1)),
+                    parseIntCtx(ctx.intValue(2)), parseIntCtx(ctx.intValue(3)) ),
+                new Color(parseIntCtx(ctx.intValue(4)), parseIntCtx(ctx.intValue(5)),
+                    parseIntCtx(ctx.intValue(6)), parseIntCtx(ctx.intValue(7))),
                 threshold, parseBoolCtx(ctx.boolValue())
             );
         }
@@ -153,31 +163,49 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
             filter = new DifferenceFilter(threshold, parseBoolCtx(ctx.boolValue()));
         }
 
-        return new FilterableImage(filter.apply(f.getImage(), s.getImage()));
+        return new FilterableImage( ImageHelper.ARGBBufferRenderer(
+            filter.apply(
+                ImageHelper.BufferToPixelSample(f.getImage() ),
+                s.getImage()
+            ),
+            f.getImage().getWidth(),
+            f.getImage().getHeight()
+            )
+        );
     }
 
     @Override
     public FilterableImage visitChromaKey(imgLangParser.ChromaKeyContext ctx) {
 
-        int r = parseIntCtx( ctx.intValue(0) );
-        int g = parseIntCtx( ctx.intValue(1) );
-        int b = parseIntCtx( ctx.intValue(2) );
-        float t = parseFloatCtx( ctx.floatValue() );
-
         FilterableImage target = visit(ctx.expression(0));
 
         if ( ctx.expression().size() == 2 ) {
-            target.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), visit(ctx.expression(1)).getImage(), t));
+            target.applyFilter(new ChromaKeyFilter(new Color(
+                parseIntCtx(ctx.intValue(0)),
+                parseIntCtx(ctx.intValue(1)),
+                parseIntCtx(ctx.intValue(2))
+            ), visit(ctx.expression(1)).getImage(), parseFloatCtx(ctx.floatValue())));
         }
         else if (ctx.intValue().size() > 3 ) {
-            int sr = parseIntCtx( ctx.intValue(3) );
-            int sg = parseIntCtx( ctx.intValue(4) );
-            int sb = parseIntCtx( ctx.intValue(5) );
 
-            target.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), Color.rgb(sr, sg, sb), t));
+            target.applyFilter(new ChromaKeyFilter(new Color(
+                parseIntCtx(ctx.intValue(0)),
+                parseIntCtx(ctx.intValue(1)),
+                parseIntCtx(ctx.intValue(2))
+            ),
+            new Color(
+                parseIntCtx(ctx.intValue(3)),
+                parseIntCtx(ctx.intValue(4)),
+                parseIntCtx(ctx.intValue(5)),
+                parseIntCtx(ctx.intValue(6))
+            ), parseFloatCtx(ctx.floatValue())));
         }
         else {
-            target.applyFilter(new ChromaKeyFilter(Color.rgb(r, g, b), t));
+            target.applyFilter(new ChromaKeyFilter(new Color(
+                parseIntCtx(ctx.intValue(0)),
+                parseIntCtx(ctx.intValue(1)),
+                parseIntCtx(ctx.intValue(2))
+            ), parseFloatCtx(ctx.floatValue())));
         }
 
         return target;
@@ -190,7 +218,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         int s = parseIntCtx( ctx.intValue() );
         float f = parseFloatCtx( ctx.floatValue() );
         FilterableImage r = visit(ctx.expression());
-        r.applyFilter(new GaussianBlur(s, f));
+        r.setImage( ImageHelper.ARGBBufferRenderer(new GaussianBlur(s, f).apply( ImageHelper.BufferToPixelSample( r.getImage() ), r.getImage() ), r.getImage().getWidth(), r.getImage().getHeight()));
         return r;
     }
 
@@ -238,7 +266,7 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitTransparency(imgLangParser.TransparencyContext ctx) {
         FilterableImage r = visit(ctx.expression());
-        r.applyFilter( new TransparencyFilter( parseFloatCtx(ctx.floatValue()) ) );
+        r.applyFilter( new TransparencyFilter( parseIntCtx(ctx.intValue()) ) );
         return r;
     }
 
@@ -261,21 +289,36 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     @Override
     public FilterableImage visitMinus(imgLangParser.MinusContext ctx) {
         CompositeFilter f = new CompositeFilter();
-        return new FilterableImage(f.apply( visit(ctx.expression()).getImage(), visit(ctx.term()).getImage() ));
+        BufferedImage i1 = visit(ctx.expression()).getImage();
+        BufferedImage r = ImageHelper.ARGBBufferRenderer(
+            f.apply( ImageHelper.BufferToPixelSample( i1 ), visit(ctx.term()).getImage() ),
+            i1.getWidth(),
+            i1.getHeight());
+        return new FilterableImage(r);
     }
 
     @Override
     public FilterableImage visitPlus(imgLangParser.PlusContext ctx) {
 
         SumFilter f = new SumFilter();
-        return new FilterableImage(f.apply( visit(ctx.expression()).getImage() , visit(ctx.term()).getImage() ));
+        BufferedImage i1 = visit(ctx.expression()).getImage();
+        BufferedImage r = ImageHelper.ARGBBufferRenderer(
+            f.apply( ImageHelper.BufferToPixelSample( i1 ), visit(ctx.term()).getImage() ),
+            i1.getWidth(),
+            i1.getHeight());
+        return new FilterableImage(r);
     }
 
     @Override
     public FilterableImage visitMult(imgLangParser.MultContext ctx) {
 
         ReflectionFilter f = new ReflectionFilter();
-        return new FilterableImage(f.apply( visit( ctx.term() ).getImage(), visit(ctx.image()).getImage() ));
+        BufferedImage i1 = visit( ctx.term() ).getImage();
+        BufferedImage r = ImageHelper.ARGBBufferRenderer(
+            f.apply( ImageHelper.BufferToPixelSample( i1 ), visit(ctx.image()).getImage() ),
+            i1.getWidth(),
+            i1.getHeight());
+        return new FilterableImage(r);
     }
 
     @Override
@@ -331,17 +374,17 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
     static private FilterableImage getImageLiteral(File file) throws IOException {
         if (file.isFile()) {
             if (isImage(file)) {
-                return new FilterableImage(new Image(file.toURI().toString()));
+                return new FilterableImage(ImageIO.read(file));
             }
         }
 
         throw new IOException();
     }
 
-    static private void writeImageToFile(Image img, File file) throws IOException {
+    static private void writeImageToFile(BufferedImage img, File file) throws IOException {
         String extension = FilenameUtils.getExtension(file.getPath());
 
-        ImageIO.write(SwingFXUtils.fromFXImage(img, null), extension, file);
+        ImageIO.write(img, extension, file);
     }
 
     static private boolean isImage(File file) {

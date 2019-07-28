@@ -4,6 +4,7 @@
 package fp.image.lang;
 
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -78,7 +79,10 @@ public class Runner extends Application {
                 Interpreter interp = new Interpreter();
                 start = Instant.now();
                 try {
-                    image_view.setImage(interp.interp(readFile(script_file.getPath())).getImage());
+                    image_view.setImage(SwingFXUtils.toFXImage(
+                        interp.interp(readFile(script_file.getPath())).getImage(),
+                        null
+                    ));
                 } catch (IOException e) {
                     System.err.println("Error reading script!");
                     e.printStackTrace();
