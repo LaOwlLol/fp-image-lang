@@ -25,13 +25,15 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.stream.Stream;
 
-public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
+public class Interpreter extends imgLangBaseVisitor {
 
     private Stack<Integer> loopIter;
-    private HashMap<String, FilterableImage> vars;
+    private HashMap<String, BufferedImage> vars;
     private File outputFile;
     private boolean inWrite;
     private boolean looping;
+    private FilterableImage convolution;
+    private Stack<BufferedImage> imageStack;
 
 
     public Interpreter() {
@@ -39,19 +41,21 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         vars = new HashMap<>();
         inWrite = false;
         looping = false;
+        imageStack = new Stack();
+        //TODO convolution init?
     }
 
-    public FilterableImage interp(String script) {
+    public void interp(String script) {
         imgLangLexer imgLexer = new imgLangLexer(CharStreams.fromString(script));
         CommonTokenStream tokens = new CommonTokenStream(imgLexer);
         imgLangParser imgParser = new imgLangParser(tokens);
         ParseTree tree = imgParser.script();
 
-        return this.visit(tree);
+        this.visit(tree);
     }
 
     @Override
-    public FilterableImage visitForeach(imgLangParser.ForeachContext ctx) {
+    public Object visitForeach(imgLangParser.ForeachContext ctx) {
 
         //check the id given.
         if (vars.containsKey(ctx.id().ID().getText())) {
@@ -74,8 +78,8 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         try (Stream<Path> list = Files.list(p).sorted() ) {
             list.filter( dirItem -> isImage(dirItem.toFile()) ).forEach( imagePath -> {
                 try {
-                    FilterableImage image = getImageLiteral(imagePath.toFile());
-                    vars.put(ctx.id().ID().getText(), image);
+                    pushImageLiteral(imagePath.toFile());
+                    vars.put(ctx.id().ID().getText(), imageStack.pop());
 
 
                     visit(ctx.body());
@@ -93,40 +97,51 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         loopIter.pop();
         looping = false;
 
-        return vars.remove(ctx.id().ID().getText());
+        vars.remove(ctx.id().ID().getText());
+        return null;
     }
 
     @Override
-    public FilterableImage visitCanny(imgLangParser.CannyContext ctx) {
+    public Object visitCanny(imgLangParser.CannyContext ctx) {
+
+        visit(ctx.expression());
+        if (imageStack.empty()) {
+            convolute();
+        }
 
         float f1 = parseFloatCtx( ctx.floatValue(0) );
         float f2 = parseFloatCtx( ctx.floatValue(1) );
-        FilterableImage r = visit(ctx.expression());
-        r.setImage(ImageHelper.ARGBBufferRenderer(
-                new CannyFilter(f1, f2).apply(ImageHelper.BufferToPixelSample(r.getImage()),r.getImage()),
-                r.getImage().getWidth(),
-                r.getImage().getHeight()
+
+        BufferedImage t = imageStack.pop();
+        imageStack.push(ImageHelper.ARGBBufferRenderer(
+                new CannyFilter(f1, f2).apply(ImageHelper.SampleImage(t), t),
+                t.getWidth(),
+                t.getHeight()
             )
         );
-        return r;
-    }
-
-    private BufferedImage applyMixer (Mixer m, BufferedImage r) {
-        return ImageHelper.ARGBBufferRenderer( m.apply( ImageHelper.BufferToPixelSample(r) , r ), r.getWidth(), r.getHeight() );
+        return null;
     }
 
     @Override
-    public FilterableImage visitSobel(imgLangParser.SobelContext ctx) {
+    public Object visitSobel(imgLangParser.SobelContext ctx) {
 
+        visit(ctx.expression());
+        if (imageStack.empty()) {
+            convolute();
+        }
 
         float f1 = parseFloatCtx( ctx.floatValue());
-        FilterableImage r = visit(ctx.expression());
 
         if (ctx.boolValue().size() == 1) {
 
             boolean b1 = parseBoolCtx( ctx.boolValue(0) );
 
-            r.setImage(applyMixer(new SobelFilter(f1, b1), r.getImage()));
+            BufferedImage t = imageStack.pop();
+            imageStack.push( ImageHelper.ARGBBufferRenderer(
+                new SobelFilter(f1, b1).apply(ImageHelper.SampleImage(t), t),
+                t.getWidth(),
+                t.getHeight()
+            ));
         }
         else if (ctx.boolValue().size() > 1) {
             visit(ctx.boolValue(0));
@@ -135,21 +150,136 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
             visit(ctx.boolValue(1));
             boolean b2 = parseBoolCtx( ctx.boolValue(1) );
 
-            r.setImage(applyMixer(new SobelFilter(f1, b1, b2), r.getImage()));
+            BufferedImage t = imageStack.pop();
+            imageStack.push( ImageHelper.ARGBBufferRenderer(
+                new SobelFilter(f1, b1, b2).apply(ImageHelper.SampleImage(t), t),
+                t.getWidth(),
+                t.getHeight()
+            ));
         }
         else {
-            r.setImage(applyMixer(new SobelFilter(f1), r.getImage()));
+            BufferedImage t = imageStack.pop();
+            imageStack.push( ImageHelper.ARGBBufferRenderer(
+                new SobelFilter(f1).apply(ImageHelper.SampleImage(t), t),
+                t.getWidth(),
+                t.getHeight()
+            ));
         }
 
-        return  r;
+        return  null;
     }
 
     @Override
-    public FilterableImage visitDiff(imgLangParser.DiffContext ctx) {
-        FilterableImage f = visit(ctx.expression(0));
-        FilterableImage s = visit(ctx.expression(1));
+    public Object visitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
+        int s = parseIntCtx( ctx.intValue() );
+        float f = parseFloatCtx( ctx.floatValue() );
+        visit(ctx.expression());
+        if (imageStack.empty()) {
+            convolute();
+        }
+
+        BufferedImage t = imageStack.pop();
+        imageStack.push( ImageHelper.ARGBBufferRenderer(
+            new GaussianBlur(s, f).apply( ImageHelper.SampleImage( t ), t ),
+            t.getWidth(),
+            t.getHeight()
+        ));
+        return null;
+    }
+
+    @Override
+    public Object visitMinus(imgLangParser.MinusContext ctx) {
+        visit(ctx.expression());
+        //if parsing last expression did not result in push to image stack we  must process the filters.
+        if (imageStack.empty()) {
+            convolute();
+        }
+
+        visit( ctx.term() );
+        //If parsing the last expression did not add a second image to the stack we must process the filters..
+        if (imageStack.size() < 2) {
+            convolute();
+        }
+
+        CompositeFilter f = new CompositeFilter();
+        int w = imageStack.peek().getWidth();
+        int h = imageStack.peek().getHeight();
+        imageStack.push( ImageHelper.ARGBBufferRenderer(
+            f.apply( ImageHelper.SampleImage( imageStack.pop() ), imageStack.pop() ),
+            w,
+            h ));
+        return null;
+    }
+
+    @Override
+    public Object visitPlus(imgLangParser.PlusContext ctx) {
+
+        visit(ctx.expression());
+        //if parsing last expression did not result in push to image stack we  must process the filters.
+        if (imageStack.empty()) {
+            convolute();
+        }
+
+        visit( ctx.term() );
+        //If parsing the last expression did not add a second image to the stack we must process the filters..
+        if (imageStack.size() < 2) {
+            convolute();
+        }
+
+        SumFilter f = new SumFilter();
+        int w = imageStack.peek().getWidth();
+        int h = imageStack.peek().getHeight();
+        imageStack.push( ImageHelper.ARGBBufferRenderer(
+            f.apply( ImageHelper.SampleImage( imageStack.pop() ), imageStack.pop() ),
+            w,
+            h ));
+        return null;
+    }
+
+    @Override
+    public Object visitMult(imgLangParser.MultContext ctx) {
+        visit(ctx.image());
+        //if parsing last expression did not result in push to image stack we  must process the filters.
+        if (imageStack.empty()) {
+            convolute();
+        }
+
+        visit( ctx.term() );
+        //If parsing the last expression did not add a second image to the stack we must process the filters..
+        if (imageStack.size() < 2) {
+            convolute();
+        }
+
+        ReflectionFilter f = new ReflectionFilter();
+        int w = imageStack.peek().getWidth();
+        int h = imageStack.peek().getHeight();
+        imageStack.push( ImageHelper.ARGBBufferRenderer(
+            f.apply( ImageHelper.SampleImage( imageStack.pop() ), imageStack.pop() ),
+            w,
+            h ));
+        return null;
+    }
+
+    @Override
+    public Object visitDiff(imgLangParser.DiffContext ctx) {
+        visit(ctx.expression(1));
+
+        //if parsing last expression did not result in push to image stack we  must process the filters.
+        if (imageStack.empty()) {
+            convolute();
+        }
+
+        visit(ctx.expression(0));
+
+        //If parsing the last expression did not add a second image to the stack we must process the filters..
+        if (imageStack.size() < 2) {
+            convolute();
+        }
+
         float threshold = parseFloatCtx(ctx.floatValue());
+
         DifferenceFilter filter;
+
         if (ctx.intValue().size() > 7) {
             filter = new DifferenceFilter(
                 new Color(parseIntCtx(ctx.intValue(0)), parseIntCtx(ctx.intValue(1)),
@@ -163,174 +293,137 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
             filter = new DifferenceFilter(threshold, parseBoolCtx(ctx.boolValue()));
         }
 
-        return new FilterableImage( ImageHelper.ARGBBufferRenderer(
-            filter.apply(
-                ImageHelper.BufferToPixelSample(f.getImage() ),
-                s.getImage()
-            ),
-            f.getImage().getWidth(),
-            f.getImage().getHeight()
-            )
+        int w = imageStack.peek().getWidth();
+        int h = imageStack.peek().getHeight();
+        imageStack.push(
+            ImageHelper.ARGBBufferRenderer(
+                filter.apply( ImageHelper.SampleImage( imageStack.pop() ), imageStack.pop()), w, h)
         );
+
+        return null;
     }
 
     @Override
     public FilterableImage visitChromaKey(imgLangParser.ChromaKeyContext ctx) {
 
-        FilterableImage target = visit(ctx.expression(0));
+        visit(ctx.expression(0));
 
         if ( ctx.expression().size() == 2 ) {
-            target.applyFilter(new ChromaKeyFilter(new Color(
+            visit(ctx.expression(1));               //this expression should end with an image push on stack
+
+            pushFilter(new ChromaKeyFilter(new Color(
                 parseIntCtx(ctx.intValue(0)),
                 parseIntCtx(ctx.intValue(1)),
                 parseIntCtx(ctx.intValue(2))
-            ), visit(ctx.expression(1)).getImage(), parseFloatCtx(ctx.floatValue())));
+            ), imageStack.pop(), parseFloatCtx(ctx.floatValue())));
         }
         else if (ctx.intValue().size() > 3 ) {
 
-            target.applyFilter(new ChromaKeyFilter(new Color(
+            pushFilter(new ChromaKeyFilter(new Color(
                 parseIntCtx(ctx.intValue(0)),
                 parseIntCtx(ctx.intValue(1)),
                 parseIntCtx(ctx.intValue(2))
             ),
-            new Color(
-                parseIntCtx(ctx.intValue(3)),
-                parseIntCtx(ctx.intValue(4)),
-                parseIntCtx(ctx.intValue(5)),
-                parseIntCtx(ctx.intValue(6))
-            ), parseFloatCtx(ctx.floatValue())));
+                new Color(
+                    parseIntCtx(ctx.intValue(3)),
+                    parseIntCtx(ctx.intValue(4)),
+                    parseIntCtx(ctx.intValue(5)),
+                    parseIntCtx(ctx.intValue(6))
+                ), parseFloatCtx(ctx.floatValue())));
         }
         else {
-            target.applyFilter(new ChromaKeyFilter(new Color(
+            pushFilter(new ChromaKeyFilter(new Color(
                 parseIntCtx(ctx.intValue(0)),
                 parseIntCtx(ctx.intValue(1)),
                 parseIntCtx(ctx.intValue(2))
             ), parseFloatCtx(ctx.floatValue())));
         }
 
-        return target;
+        return null;
     }
 
     @Override
-    public FilterableImage visitGaussianBlur(imgLangParser.GaussianBlurContext ctx) {
+    public Object visitGrayScale(imgLangParser.GrayScaleContext ctx) {
 
-
-        int s = parseIntCtx( ctx.intValue() );
-        float f = parseFloatCtx( ctx.floatValue() );
-        FilterableImage r = visit(ctx.expression());
-        r.setImage( ImageHelper.ARGBBufferRenderer(new GaussianBlur(s, f).apply( ImageHelper.BufferToPixelSample( r.getImage() ), r.getImage() ), r.getImage().getWidth(), r.getImage().getHeight()));
-        return r;
-    }
-
-    @Override
-    public FilterableImage visitGrayScale(imgLangParser.GrayScaleContext ctx) {
-
-        FilterableImage r = visit(ctx.expression());
+        visit(ctx.expression());
 
         if (ctx.floatValue().size() > 0) {
 
             float bl = parseFloatCtx( ctx.floatValue(0) );
             float gn = parseFloatCtx( ctx.floatValue(1) );
             float rd = parseFloatCtx( ctx.floatValue(2) );
-            r.applyFilter(new GrayscaleFilter(rd, gn, bl));
+            pushFilter(new GrayscaleFilter(rd, gn, bl));
         }
         else {
-            r.applyFilter(new GrayscaleFilter());
+            pushFilter(new GrayscaleFilter());
         }
 
-        return r;
+        return null;
     }
 
     @Override
-    public FilterableImage visitRedist(imgLangParser.RedistContext ctx) {
-        FilterableImage r = visit(ctx.expression());
-        r.applyFilter(new RedistributionFilter(parseFloatCtx( ctx.floatValue() )));
-        return r;
+    public Object visitRedist(imgLangParser.RedistContext ctx) {
+        visit(ctx.expression());
+        pushFilter(new RedistributionFilter(parseFloatCtx( ctx.floatValue() )));
+        return null;
     }
 
     @Override
-    public FilterableImage visitChromaLum(imgLangParser.ChromaLumContext ctx) {
+    public Object visitChromaLum(imgLangParser.ChromaLumContext ctx) {
 
-        FilterableImage r = visit(ctx.expression());
+        visit(ctx.expression());
         if (ctx.floatValue().size() == 3) {
-            r.applyFilter( new ChromaLuminanceFilter( new GrayscaleFilter(parseFloatCtx(ctx.floatValue(0)),
+            pushFilter( new ChromaLuminanceFilter( new GrayscaleFilter(parseFloatCtx(ctx.floatValue(0)),
                 parseFloatCtx(ctx.floatValue(1)), parseFloatCtx(ctx.floatValue(2))) ) );
         }
         else {
-            r.applyFilter(new ChromaLuminanceFilter());
+            pushFilter(new ChromaLuminanceFilter());
 
         }
-        return r;
+        return null;
     }
 
     @Override
-    public FilterableImage visitTransparency(imgLangParser.TransparencyContext ctx) {
-        FilterableImage r = visit(ctx.expression());
-        r.applyFilter( new TransparencyFilter( parseIntCtx(ctx.intValue()) ) );
-        return r;
+    public Object visitTransparency(imgLangParser.TransparencyContext ctx) {
+        visit(ctx.expression());
+        pushFilter( new TransparencyFilter( parseIntCtx(ctx.intValue()) ) );
+        return null;
     }
 
     @Override
-    public FilterableImage visitWrite(imgLangParser.WriteContext ctx) {
+    public Object visitWrite(imgLangParser.WriteContext ctx) {
 
         inWrite = true;
         visit(ctx.path());
-        FilterableImage r = visit(ctx.expression());
+        visit(ctx.expression());
+        if (imageStack.empty()) {
+            convolute();
+        }
+
         try {
-            writeImageToFile( r.getImage() , outputFile);
+            writeImageToFile( imageStack.pop() , outputFile);
         } catch (IOException e) {
             System.err.println("Failed to write image: " + ctx.expression().toString());
             System.err.println("\t reason: " + e.getMessage());
         }
 
-        return r;
+        return null;
     }
 
     @Override
-    public FilterableImage visitMinus(imgLangParser.MinusContext ctx) {
-        CompositeFilter f = new CompositeFilter();
-        BufferedImage i1 = visit(ctx.expression()).getImage();
-        BufferedImage r = ImageHelper.ARGBBufferRenderer(
-            f.apply( ImageHelper.BufferToPixelSample( i1 ), visit(ctx.term()).getImage() ),
-            i1.getWidth(),
-            i1.getHeight());
-        return new FilterableImage(r);
+    public Object visitAssignment(imgLangParser.AssignmentContext ctx) {
+
+        visit(ctx.expression());
+        if (imageStack.empty()) {
+            convolute();
+        }
+
+        vars.put(ctx.id().ID().getText(), imageStack.pop());
+        return null;
     }
 
     @Override
-    public FilterableImage visitPlus(imgLangParser.PlusContext ctx) {
-
-        SumFilter f = new SumFilter();
-        BufferedImage i1 = visit(ctx.expression()).getImage();
-        BufferedImage r = ImageHelper.ARGBBufferRenderer(
-            f.apply( ImageHelper.BufferToPixelSample( i1 ), visit(ctx.term()).getImage() ),
-            i1.getWidth(),
-            i1.getHeight());
-        return new FilterableImage(r);
-    }
-
-    @Override
-    public FilterableImage visitMult(imgLangParser.MultContext ctx) {
-
-        ReflectionFilter f = new ReflectionFilter();
-        BufferedImage i1 = visit( ctx.term() ).getImage();
-        BufferedImage r = ImageHelper.ARGBBufferRenderer(
-            f.apply( ImageHelper.BufferToPixelSample( i1 ), visit(ctx.image()).getImage() ),
-            i1.getWidth(),
-            i1.getHeight());
-        return new FilterableImage(r);
-    }
-
-    @Override
-    public FilterableImage visitAssignment(imgLangParser.AssignmentContext ctx) {
-
-        FilterableImage r = visit(ctx.expression());
-        vars.put(ctx.id().ID().getText(), r);
-        return r;
-    }
-
-    @Override
-    public FilterableImage visitPath(imgLangParser.PathContext ctx) {
+    public Object visitPath(imgLangParser.PathContext ctx) {
 
         if (inWrite) {
 
@@ -351,34 +444,40 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
         }
         else {
             try {
-                return getImageLiteral(ctx.PATH_LITERAL().getText());
+                pushImageLiteral(ctx.PATH_LITERAL().getText());
+                return null;
             } catch (IOException e) {
                 //System.err.print("Line: "+ );
-                System.err.println("Unknown image file: " + ctx.PATH_LITERAL().getText());
-                //e.printStackTrace();
+                System.err.println("Error for: " + ctx.PATH_LITERAL().getText());
+                e.printStackTrace();
                 //TODO how to actually handle errors.
-                return new FilterableImage( 0,0 );
+                return null;
             }
         }
     }
 
     @Override
-    public FilterableImage visitVar(imgLangParser.VarContext ctx) {
-        return vars.get(ctx.id().ID().getText());
+    public Object visitVar(imgLangParser.VarContext ctx) {
+        imageStack.push(vars.get(ctx.id().ID().getText()));
+        return null;
     }
 
-    static private FilterableImage getImageLiteral(String path) throws IOException {
-        return getImageLiteral(new File(path));
+    private void pushImageLiteral(String path) throws IOException {
+        pushImageLiteral(Paths.get(path).toFile());
     }
 
-    static private FilterableImage getImageLiteral(File file) throws IOException {
+    private void pushImageLiteral(File file) throws IOException {
         if (file.isFile()) {
             if (isImage(file)) {
-                return new FilterableImage(ImageIO.read(file));
+                imageStack.push(ImageIO.read(file));
+            }
+            else {
+                throw new IOException();
             }
         }
-
-        throw new IOException();
+        else {
+            throw new IOException();
+        }
     }
 
     static private void writeImageToFile(BufferedImage img, File file) throws IOException {
@@ -409,5 +508,20 @@ public class Interpreter extends imgLangBaseVisitor<FilterableImage> {
 
     static private boolean parseBoolCtx(imgLangParser.BoolValueContext bctx) {
         return bctx.BOOL().getText().equals("#true");
+    }
+
+    private void pushFilter(Filter f) {
+        if (convolution == null) {
+            convolution = new FilterableImage(imageStack.pop());
+        }
+
+        convolution.addFilter(f);
+    }
+
+    private void convolute() {
+        if (convolution != null) {
+            imageStack.push(convolution.render());
+            convolution = null;
+        }
     }
 }

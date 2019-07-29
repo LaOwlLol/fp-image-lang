@@ -79,10 +79,11 @@ public class Runner extends Application {
                 Interpreter interp = new Interpreter();
                 start = Instant.now();
                 try {
-                    image_view.setImage(SwingFXUtils.toFXImage(
-                        interp.interp(readFile(script_file.getPath())).getImage(),
+                    /*image_view.setImage(SwingFXUtils.toFXImage(
+                        interp.interp(readFile(script_file.getPath())),
                         null
-                    ));
+                    ));*/
+                    interp.interp(readFile(script_file.getPath()));
                 } catch (IOException e) {
                     System.err.println("Error reading script!");
                     e.printStackTrace();

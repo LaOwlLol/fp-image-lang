@@ -11,7 +11,7 @@ body
 
 line
     : assignment
-    | expression
+//    | expression
     | write
     | foreach
     ;
